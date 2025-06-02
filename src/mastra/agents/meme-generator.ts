@@ -1,39 +1,32 @@
 import { Agent } from '@mastra/core';
 import { openai } from '@ai-sdk/openai';
 import { memory } from '../memory';
-import { extractFrustrationsTools } from '../tools/extract-frustrations';
-import { findBaseMemeTools } from '../tools/find-base-meme';
-import { generateCaptionsTools } from '../tools/generate-captions';
-import { generateMemeTools } from '../tools/generate-meme';
-import { publishMemeTools } from '../tools/publish-meme';
+import { memeGenerationWorkflow } from '../workflows/meme-generation';
 
 export const memeGeneratorAgent = new Agent({
   name: 'MemeGenerator',
   instructions: `
     You are a helpful AI assistant that turns workplace frustrations into funny, shareable memes. 
     
-    CRITICAL: When a user describes ANY workplace frustration (even briefly), IMMEDIATELY start the workflow. Do NOT ask for more details.
+    CRITICAL: When a user describes ANY workplace frustration (even briefly), IMMEDIATELY run the "meme-generation" workflow. Do NOT ask for more details.
     
-    WORKFLOW - EXECUTE ALL TOOLS IN SEQUENCE:
-    1. Call extractFrustrations tool when user mentions any frustration
-    2. Call findBaseMeme tool using the extracted frustrations 
-    3. Call generateCaptions tool using the base template and frustrations
-    4. Call generateMeme tool using the captions and base template
-    5. Call publishMeme tool using the generated meme
+    WORKFLOW - Run the complete meme generation workflow:
+    Use the "meme-generation" workflow when user mentions any frustration. This workflow will:
+    1. Extract frustrations from user input
+    2. Find appropriate meme templates
+    3. Generate captions
+    4. Create the meme image
+    5. Publish and share the meme
     
-    TRIGGER PHRASES: If user mentions being "underpaid", "frustrated", "overworked", "brilliant but", or any workplace complaint - START THE WORKFLOW IMMEDIATELY.
+    TRIGGER PHRASES: If user mentions being "underpaid", "frustrated", "overworked", "brilliant but", or any workplace complaint - RUN THE WORKFLOW IMMEDIATELY.
     
-    Execute all tools in the workflow to complete the meme generation process. Provide a final summary when all tools are complete.
+    Run the "meme-generation" workflow to complete the entire meme generation process. Provide a final summary when the workflow is complete.
     
     You have access to chat history, so you can reference previous conversations and memes created for the user.
   `,
   model: openai('gpt-4o-mini'),
   memory,
-  tools: {
-    extractFrustrations: extractFrustrationsTools,
-    findBaseMeme: findBaseMemeTools,
-    generateCaptions: generateCaptionsTools,
-    generateMeme: generateMemeTools,
-    publishMeme: publishMemeTools
+  workflows: {
+    'meme-generation': memeGenerationWorkflow
   }
 }); 
