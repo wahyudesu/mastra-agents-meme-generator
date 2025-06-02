@@ -1,58 +1,55 @@
-import { createTool } from '@mastra/core';
+import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
+import { memeTemplateSchema, captionsSchema } from '../schemas';
 
-// Schema for base meme template
-const baseTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  url: z.string(),
-  width: z.number(),
-  height: z.number(),
-  box_count: z.number()
-});
-
-// Schema for generated captions
-const captionsSchema = z.object({
-  topText: z.string(),
-  bottomText: z.string(),
-  memeStyle: z.enum(["classic_format", "reaction", "comparison", "situation", "advice"]),
-  humorLevel: z.enum(["mild", "moderate", "spicy"])
-});
-
-export const generateMemeTools = createTool({
+export const generateMemeStep = createStep({
   id: "generate-meme",
   description: "Create a custom meme using OpenAI image generation inspired by popular meme templates",
   inputSchema: z.object({
-    baseTemplate: baseTemplateSchema,
-    captions: captionsSchema,
-    style: z.enum(["photorealistic", "cartoon", "classic_meme"]).optional().describe("Visual style for the generated meme")
+    baseTemplate: memeTemplateSchema,
+    captions: captionsSchema
   }),
-  execute: async ({ context: { baseTemplate, captions, style } }) => {
+  outputSchema: z.object({
+    imageGenerated: z.boolean(),
+    imageSize: z.string(),
+    captions: z.object({
+      topText: z.string(),
+      bottomText: z.string()
+    }),
+    baseTemplate: z.string(),
+    visualStyle: z.string(),
+    memeStyle: z.string(),
+    humorLevel: z.string(),
+    analysis: z.object({
+      message: z.string()
+    })
+  }),
+  execute: async ({ inputData }) => {
     try {
       console.log(`🎨 Creating meme using AI generation...`);
       
-      const visualStyle = style || "classic_meme";
+      const visualStyle = "classic_meme";
       
-      console.log(`🖼️  Base template inspiration: "${baseTemplate.name}"`);
-      console.log(`📝 Top text: "${captions.topText}"`);
-      console.log(`📝 Bottom text: "${captions.bottomText}"`);
+      console.log(`🖼️  Base template inspiration: "${inputData.baseTemplate.name}"`);
+      console.log(`📝 Top text: "${inputData.captions.topText}"`);
+      console.log(`📝 Bottom text: "${inputData.captions.bottomText}"`);
       console.log(`🎨 Visual style: ${visualStyle}`);
       
-      // Create a detailed prompt that describes the meme concept without copying copyrighted content
+      // Create a detailed prompt that describes the meme concept
       const prompt = `
-        Create an original meme image inspired by the concept of "${baseTemplate.name}" with the following text:
+        Create an original meme image inspired by the concept of "${inputData.baseTemplate.name}" with the following text:
         
-        Top text: "${captions.topText}"
-        Bottom text: "${captions.bottomText}"
+        Top text: "${inputData.captions.topText}"
+        Bottom text: "${inputData.captions.bottomText}"
         
         Style requirements:
-        - Create an original image that captures the essence and humor style of the "${baseTemplate.name}" meme format
+        - Create an original image that captures the essence and humor style of the "${inputData.baseTemplate.name}" meme format
         - Add the text as clear, bold, white text with black outline (classic meme font style)
         - Top text positioned at the top, bottom text at the bottom
         - Use a ${visualStyle} visual style
         - Make it look like a professional, shareable internet meme
-        - Ensure the image composition supports the ${captions.memeStyle} format
-        - Capture ${captions.humorLevel} humor level
+        - Ensure the image composition supports the ${inputData.captions.memeStyle} format
+        - Capture ${inputData.captions.humorLevel} humor level
         - Make the text highly readable and properly sized
         - Create original characters/scenes that convey the same type of humor as the template
         
@@ -65,11 +62,6 @@ export const generateMemeTools = createTool({
       // Check if API key is available
       if (!process.env.OPENAI_API_KEY) {
         throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY in your .env file.');
-      }
-
-      // Check if fetch is available
-      if (typeof fetch === 'undefined') {
-        throw new Error('fetch is not available. Please ensure you are running in a Node.js 18+ environment or install a fetch polyfill.');
       }
 
       // Validate and potentially trim the prompt for gpt-image-1 (max ~4000 characters)
@@ -96,7 +88,7 @@ export const generateMemeTools = createTool({
         });
       } catch (fetchError) {
         console.error('Network error when calling OpenAI API:', fetchError);
-        throw new Error(`Network error: Failed to connect to OpenAI API. Please check your internet connection. Details: ${fetchError instanceof Error ? fetchError.message : 'Unknown network error'}`);
+        throw new Error(`Network error: Failed to connect to OpenAI API. Please check your internet connection.`);
       }
 
       if (!response.ok) {
@@ -132,44 +124,28 @@ export const generateMemeTools = createTool({
 
       console.log(`✅ Meme generated successfully!`);
       
-      // Don't include the full image URL in the analysis to save tokens
-      const imageUrlPreview = imageUrl.startsWith('data:') 
-        ? `data:image/png;base64,[${Math.floor(imageUrl.length/1000)}KB base64 data]`
-        : imageUrl;
-      
-      const result = {
-        // Don't include the actual imageUrl in the result to save massive tokens
-        // The publish tool can still access it through a different mechanism
-        imageGenerated: true,
-        imageSize: imageUrl.startsWith('data:') ? `${Math.floor(imageUrl.length/1000)}KB` : 'URL',
-        captions: {
-          topText: captions.topText,
-          bottomText: captions.bottomText
-        },
-        baseTemplate: baseTemplate.name,
-        visualStyle,
-        memeStyle: captions.memeStyle,
-        humorLevel: captions.humorLevel,
-        analysis: {
-          message: `Your meme is ready! Created ${visualStyle} style meme with "${captions.topText}" / "${captions.bottomText}". Now publishing it for easy sharing...`
-        }
-      };
-
       // Store the actual image URL separately for the publish step
       // This is a workaround to avoid including massive base64 data in the conversation
       (global as any).lastGeneratedMemeUrl = imageUrl;
 
       return {
-        success: true,
-        data: result
+        imageGenerated: true,
+        imageSize: imageUrl.startsWith('data:') ? `${Math.floor(imageUrl.length/1000)}KB` : 'URL',
+        captions: {
+          topText: inputData.captions.topText,
+          bottomText: inputData.captions.bottomText
+        },
+        baseTemplate: inputData.baseTemplate.name,
+        visualStyle,
+        memeStyle: inputData.captions.memeStyle,
+        humorLevel: inputData.captions.humorLevel,
+        analysis: {
+          message: `Your meme is ready! Created ${visualStyle} style meme with "${inputData.captions.topText}" / "${inputData.captions.bottomText}". Now publishing it for easy sharing...`
+        }
       };
     } catch (error) {
       console.error('Error generating meme:', error);
-      return {
-        success: false,
-        error: `Failed to generate meme: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        data: null
-      };
+      throw new Error(`Failed to generate meme: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }); 
