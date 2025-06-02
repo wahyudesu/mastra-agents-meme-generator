@@ -1,5 +1,6 @@
 import { Agent } from '@mastra/core';
 import { openai } from '@ai-sdk/openai';
+import { memory } from '../memory';
 import { extractFrustrationsTools } from '../tools/extract-frustrations';
 import { findBaseMemeTools } from '../tools/find-base-meme';
 import { generateCaptionsTools } from '../tools/generate-captions';
@@ -23,8 +24,11 @@ export const memeGeneratorAgent = new Agent({
     TRIGGER PHRASES: If user mentions being "underpaid", "frustrated", "overworked", "brilliant but", or any workplace complaint - START THE WORKFLOW IMMEDIATELY.
     
     Execute all tools in the workflow to complete the meme generation process. Provide a final summary when all tools are complete.
+    
+    You have access to chat history, so you can reference previous conversations and memes created for the user.
   `,
   model: openai('gpt-4o-mini'),
+  memory,
   tools: {
     extractFrustrations: extractFrustrationsTools,
     findBaseMeme: findBaseMemeTools,
