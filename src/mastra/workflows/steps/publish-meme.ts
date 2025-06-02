@@ -58,13 +58,14 @@ export const publishMemeStep = createStep({
       if (!uploadResponse.ok) {
         // Fallback: return the original URL if imgur fails
         console.warn('⚠️ Imgur upload failed, using original URL as fallback');
+        const shareableUrl = imageUrl.startsWith('data:') ? '[Base64 image - too large to display]' : imageUrl;
         return {
-          shareableUrl: imageUrl,
-          originalUrl: imageUrl,
+          shareableUrl: shareableUrl,
+          originalUrl: shareableUrl,
           hosting: 'original',
-          clickableMessage: `🎉 Your meme is ready! Click here to view: ${imageUrl}`,
+          clickableMessage: `🎉 Your meme is ready! ${imageUrl.startsWith('data:') ? 'The image was generated successfully but is too large to share directly.' : `Click here to view: ${shareableUrl}`}`,
           analysis: {
-            message: `🎉 Here's your shareable meme: ${imageUrl}`
+            message: `🎉 Your meme has been created! ${imageUrl.startsWith('data:') ? 'The image is ready but too large to display directly.' : `Here's your shareable meme: ${shareableUrl}`}`
           }
         };
       }
@@ -94,13 +95,14 @@ export const publishMemeStep = createStep({
       
       // Fallback: return the original URL
       console.log("⚠️ Upload failed, providing original URL as fallback");
+      const fallbackUrl = imageUrl && imageUrl.startsWith('data:') ? '[Base64 image - too large to display]' : (imageUrl || 'Image generation failed');
       return {
-        shareableUrl: imageUrl || 'Image generation failed',
-        originalUrl: imageUrl || 'Image generation failed',
+        shareableUrl: fallbackUrl,
+        originalUrl: fallbackUrl,
         hosting: 'original',
-        clickableMessage: `🎉 Your meme is ready! Click here to view: ${imageUrl || 'Image generation failed'}`,
+        clickableMessage: `🎉 Your meme is ready! ${imageUrl && imageUrl.startsWith('data:') ? 'The image was generated successfully but is too large to share directly.' : `Click here to view: ${fallbackUrl}`}`,
         analysis: {
-          message: `Your meme is ready! While I couldn't upload it to a hosting service, you can still view and share it using the direct link. The image is accessible and ready to bring some humor to your workplace! 😄`
+          message: `Your meme is ready! ${imageUrl && imageUrl.startsWith('data:') ? 'The image was generated but is too large to display directly.' : 'While I couldn\'t upload it to a hosting service, you can still view and share it using the direct link.'} The image is accessible and ready to bring some humor to your workplace! 😄`
         }
       };
     }

@@ -83,7 +83,8 @@ export const generateMemeStep = createStep({
           body: JSON.stringify({
             model: 'gpt-image-1',
             prompt: finalPrompt,
-            size: '1024x1024'
+            size: '1024x1024',
+            response_format: 'url' // Ensure we get URLs, not base64
           })
         });
       } catch (fetchError) {
@@ -130,7 +131,7 @@ export const generateMemeStep = createStep({
 
       return {
         imageGenerated: true,
-        imageSize: imageUrl.startsWith('data:') ? `${Math.floor(imageUrl.length/1000)}KB` : 'URL',
+        imageSize: imageUrl.startsWith('data:') ? 'base64' : 'URL',
         captions: {
           topText: inputData.captions.topText,
           bottomText: inputData.captions.bottomText
