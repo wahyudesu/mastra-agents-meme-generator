@@ -1,19 +1,26 @@
-import { createTool } from '@mastra/core';
+import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 
-export const publishMemeTools = createTool({
+export const publishMemeStep = createStep({
   id: "publish-meme",
   description: "Upload meme to hosting service and get shareable URL",
   inputSchema: z.object({
-    memeInfo: z.object({
-      imageGenerated: z.boolean(),
-      captions: z.object({
-        topText: z.string(),
-        bottomText: z.string()
-      })
-    }).describe("Information about the generated meme")
+    imageGenerated: z.boolean(),
+    captions: z.object({
+      topText: z.string(),
+      bottomText: z.string()
+    })
   }),
-  execute: async ({ context: { memeInfo } }) => {
+  outputSchema: z.object({
+    shareableUrl: z.string(),
+    originalUrl: z.string(),
+    hosting: z.string(),
+    clickableMessage: z.string(),
+    analysis: z.object({
+      message: z.string()
+    })
+  }),
+  execute: async ({ inputData: memeInfo }) => {
     try {
       console.log("📤 Publishing meme...");
       
@@ -52,16 +59,12 @@ export const publishMemeTools = createTool({
         // Fallback: return the original URL if imgur fails
         console.warn('⚠️ Imgur upload failed, using original URL as fallback');
         return {
-          success: true,
-          data: {
-            shareableUrl: imageUrl,
-            originalUrl: imageUrl,
-            hosting: 'original',
-            message: 'Using original URL as fallback',
-            clickableMessage: `🎉 Your meme is ready! Click here to view: ${imageUrl}`,
-            analysis: {
-              message: `🎉 Here's your shareable meme: ${imageUrl}`
-            }
+          shareableUrl: imageUrl,
+          originalUrl: imageUrl,
+          hosting: 'original',
+          clickableMessage: `🎉 Your meme is ready! Click here to view: ${imageUrl}`,
+          analysis: {
+            message: `🎉 Here's your shareable meme: ${imageUrl}`
           }
         };
       }
@@ -75,18 +78,12 @@ export const publishMemeTools = createTool({
       console.log(`✅ Uploaded to Imgur!`);
       
       return {
-        success: true,
-        data: {
-          shareableUrl: uploadData.data.link,
-          originalUrl: imageUrl,
-          hosting: 'imgur',
-          deleteHash: uploadData.data.deletehash, // Can be used to delete the image later
-          views: 0,
-          title: memeInfo.captions.topText || 'Work Frustration Meme',
-          clickableMessage: `🎉 Your meme is ready! Click here to view and share: ${uploadData.data.link}`,
-          analysis: {
-            message: `🎉 Here's your shareable meme: ${uploadData.data.link}`
-          }
+        shareableUrl: uploadData.data.link,
+        originalUrl: imageUrl,
+        hosting: 'imgur',
+        clickableMessage: `🎉 Your meme is ready! Click here to view and share: ${uploadData.data.link}`,
+        analysis: {
+          message: `🎉 Here's your shareable meme: ${uploadData.data.link}`
         }
       };
     } catch (error) {
@@ -98,17 +95,12 @@ export const publishMemeTools = createTool({
       // Fallback: return the original URL
       console.log("⚠️ Upload failed, providing original URL as fallback");
       return {
-        success: true,
-        data: {
-          shareableUrl: imageUrl || 'Image generation failed',
-          originalUrl: imageUrl || 'Image generation failed',
-          hosting: 'original',
-          message: 'Failed to upload to hosting service, using original URL',
-          error: error instanceof Error ? error.message : 'Unknown error',
-          clickableMessage: `🎉 Your meme is ready! Click here to view: ${imageUrl || 'Image generation failed'}`,
-          analysis: {
-            message: `Your meme is ready! While I couldn't upload it to a hosting service, you can still view and share it using the direct link. The image is accessible and ready to bring some humor to your workplace! 😄`
-          }
+        shareableUrl: imageUrl || 'Image generation failed',
+        originalUrl: imageUrl || 'Image generation failed',
+        hosting: 'original',
+        clickableMessage: `🎉 Your meme is ready! Click here to view: ${imageUrl || 'Image generation failed'}`,
+        analysis: {
+          message: `Your meme is ready! While I couldn't upload it to a hosting service, you can still view and share it using the direct link. The image is accessible and ready to bring some humor to your workplace! 😄`
         }
       };
     }
