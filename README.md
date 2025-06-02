@@ -65,7 +65,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to start generating memes!
+Visit [http://localhost:4111](http://localhost:4111) to start generating memes!
 
 ## 🤖 How It Works
 
