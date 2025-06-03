@@ -286,6 +286,62 @@ export const mastra = new Mastra({
 
 ## Step 2: Complete the Workflow
 
+### What You'll Learn
+In this step, you'll master the art of **workflow composition** - connecting multiple AI-powered steps into a seamless pipeline. You'll learn how to:
+
+- **Design robust data schemas** using Zod for type safety and validation
+- **Integrate external APIs** (Imgflip) with proper error handling
+- **Map data between workflow steps** to ensure smooth information flow
+- **Create a multi-step AI pipeline** that transforms unstructured input into a finished product
+- **Handle asynchronous operations** and API rate limits effectively
+
+### Why This Matters
+Building complete workflows is where the magic happens in AI applications. Instead of one-off AI calls, you're creating a **sophisticated pipeline** that:
+
+1. **Maintains data integrity** through typed schemas
+2. **Chains AI reasoning** with external services
+3. **Handles complexity gracefully** with proper error boundaries
+4. **Scales to real-world problems** beyond simple chatbots
+
+This pattern is essential for production AI applications where you need reliable, predictable behavior across multiple steps.
+
+### Key Concepts
+
+#### 🔗 **Workflow Composition**
+Mastra workflows use a **builder pattern** to chain steps together:
+```typescript
+workflow
+  .then(stepA)        // Run first step
+  .map({ ... })       // Transform data
+  .then(stepB)        // Run second step with mapped data
+  .commit()           // Finalize the workflow
+```
+
+#### 📊 **Data Mapping**
+The `.map()` function tells Mastra how to pass data between steps:
+```typescript
+.map({
+  fieldName: {
+    step: previousStep,    // Which step to get data from
+    path: 'nested.field'   // JSONPath to the specific data
+  }
+})
+```
+
+#### 🛡️ **Schema Validation**
+Every step has input/output schemas that:
+- **Validate data structure** at runtime
+- **Provide TypeScript types** for development
+- **Generate documentation** automatically
+- **Catch errors early** before they propagate
+
+#### 🌐 **External API Integration**
+Real workflows often need external services. Best practices:
+- **Always handle failures gracefully**
+- **Include retry logic for transient errors**
+- **Validate external API responses**
+- **Use environment variables for credentials**
+
 ### Summary
 **Goal**: Build the complete meme generation workflow by adding all remaining steps.
 
@@ -649,6 +705,50 @@ export const mastra = new Mastra({
 ---
 
 ## Step 3: Add Agent Integration
+
+### What You'll Learn
+In this step, you'll discover the power of **conversational AI agents** - entities that can maintain context, remember past interactions, and intelligently trigger workflows. You'll learn:
+
+- **What agents are** and how they differ from simple AI API calls
+- **Agent instructions** and how they shape behavior and decision-making
+- **Memory systems** for conversation persistence across sessions
+- **Workflow integration** to automatically trigger complex processes
+- **API endpoint design** for conversational interfaces
+- **Resource and thread management** for multi-user applications
+
+### Why This Matters
+Agents transform workflows from **tools you have to manually run** into **intelligent assistants that know when and how to help**. This step represents the evolution from:
+
+- ❌ "User opens workflow UI → manually enters data → gets result"
+- ✅ "User mentions problem in natural language → agent understands context → automatically creates solution"
+
+This pattern is foundational for building AI applications that feel natural and proactive rather than mechanical.
+
+### Key Concepts
+
+#### 🤖 **What Are Agents?**
+Agents are **stateful AI entities** that combine:
+- **Persistent memory** across conversations
+- **Instructions** that define their personality and behavior  
+- **Tool access** to workflows, APIs, and external systems
+- **Context awareness** to make intelligent decisions about when to act
+
+#### 🧠 **Memory & Persistence**
+Mastra agents use a memory system that tracks:
+- **Conversation history** (what was said when)
+- **User context** (resourceId = which user)
+- **Thread context** (threadId = which conversation)
+- **Workflow results** (what was created before)
+
+#### 🎯 **Agent Instructions**
+The `instructions` field is where you define:
+- **Personality**: How the agent communicates
+- **Behavior rules**: When to trigger workflows vs just chat
+- **Domain knowledge**: What the agent knows about
+- **Decision logic**: How to interpret user intent
+
+#### 🔗 **Workflow Integration**
+Agents can be configured with workflows that they can trigger automatically based on conversation context, making them proactive rather than reactive.
 
 ### Summary
 **Goal**: Create an AI agent that provides a conversational interface to the workflow.
