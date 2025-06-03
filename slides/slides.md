@@ -1,7 +1,7 @@
 ---
 theme: seriph
-background: https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1920
-title: Build AI Agents with Mastra
+background: /meme.png
+title: AI Pipelines and Agents in Pure TypeScript with Mastra.ai
 info: |
   ## AI Meme Generator Workshop
   Learn to build production-ready AI agents and workflows using TypeScript
@@ -13,15 +13,7 @@ transition: slide-left
 mdc: true
 ---
 
-# Build AI Agents with Mastra
-
-## Turn Workplace Frustrations into Memes with AI
-
-<div class="pt-12">
-  <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
-    Press Space for next page <carbon:arrow-right class="inline"/>
-  </span>
-</div>
+# AI Pipelines and Agents in Pure TypeScript with Mastra.ai
 
 ---
 layout: two-cols
@@ -43,9 +35,9 @@ Build an AI-powered meme generator that transforms workplace frustrations into s
 
 ::right::
 
-<div class="pl-8 pt-4">
+<div class="pl-8 pt-8">
 
-```mermaid {scale: 0.8}
+```mermaid
 graph TD
     A[User Frustration] --> B[AI Agent]
     B --> C[Extract & Categorize]
@@ -58,15 +50,11 @@ graph TD
 </div>
 
 ---
+layout: image-right
+image: /workos.webp
+---
 
-# About Us
-
-<div class="grid grid-cols-2 gap-8">
-<div>
-
-## WorkOS
-
-<img src="https://workos.com/images/logo.svg" class="h-12 mb-4" />
+# WorkOS
 
 We build developer tools that make enterprise features easy:
 
@@ -74,58 +62,27 @@ We build developer tools that make enterprise features easy:
 - **Directory Sync** - SCIM protocol  
 - **Audit Logs** - Compliance-ready events
 - **Fine-Grained Authorization** - Advanced permissions
-
-</div>
-<div>
-
-### Why We're Here
-
-We love building tools that make developers' lives easier. Mastra is our latest exploration into making AI development more accessible and production-ready.
-
-### Our Mission
-
-Make complex enterprise features as simple as possible for developers to implement.
-
-</div>
-</div>
+- **Auth for your AI** - Secure MCP servers and attach identity to agents
 
 ---
 layout: image-right
-image: https://github.com/nicknisi.png
+image: /nick.jpg
 ---
 
 # Nick Nisi
 
-## Developer Advocate @ WorkOS
+## Developer Experience @ WorkOS
 
-- 🎙️ Host of JS Party podcast
+- 🎙️ Host on Dysfunctional.fm (formerly JS Party)
+- 🎤 Conference Emcee and speaker (NEJS Conf, TS Conf, SquiggleConf)
 - 💻 TypeScript enthusiast
 - 🔧 Vim user (btw)
 - 🌐 @nicknisi everywhere
 
-### Fun Facts
-- Conference organizer (NEJS Conf, TSConf)
-- Dad jokes connoisseur
-- Mechanical keyboard collector
-
 ---
-layout: image-right
-image: https://github.com/zkirby.png
+layout: image
+image: /zack.png
 ---
-
-# Zack Kirby
-
-## Software Engineer @ WorkOS
-
-- 🏗️ Building Mastra
-- 🤖 AI/ML engineering
-- 🚀 Full-stack TypeScript
-- 🌐 @zkirby on GitHub
-
-### Fun Facts
-- Loves building developer tools
-- Coffee enthusiast
-- Always experimenting with new AI models
 
 ---
 
@@ -170,51 +127,6 @@ const agent = new Agent({
   workflows: { memeGen: workflow }
 });
 ```
-
-</div>
-
-</div>
-
----
-
-# Why Build Internal AI Tools?
-
-<div class="grid grid-cols-2 gap-8">
-
-<div>
-
-## The Problem
-
-**Every company needs custom AI tools:**
-- Customer support automation
-- Document processing pipelines
-- Data analysis workflows
-- Content generation systems
-
-**But building them is hard:**
-- No standards or best practices
-- Difficult to maintain and debug
-- Hard to share across teams
-- Security and compliance concerns
-
-</div>
-
-<div>
-
-## The Solution
-
-**Mastra provides standards for:**
-- 🏗️ **Consistent architecture** across all tools
-- 🔒 **Type safety** from input to output
-- 🔍 **Built-in observability** and debugging
-- 📊 **Evaluation** to measure quality over time
-- 🚀 **Rapid deployment** patterns
-
-**Perfect for:**
-- Internal productivity tools
-- Customer-facing AI features
-- Data processing pipelines
-- Automation workflows
 
 </div>
 
@@ -378,121 +290,6 @@ await agent.generate(
   { resourceId: "user-123" }
 );
 ```
-
-</div>
-
-</div>
-
----
-
-# MCP: Model Context Protocol 🔌
-
-<div class="grid grid-cols-2 gap-8">
-
-<div>
-
-## What is MCP?
-
-**Model Context Protocol** enables:
-- Standard way to connect AI to data/tools
-- Works with any MCP-compatible client
-- Secure, controlled access to resources
-- Built by Anthropic, open standard
-
-## Mastra + MCP
-
-Mastra can **consume MCP tools**:
-```typescript
-const agent = new Agent({
-  tools: await mcpClient.getTools(),
-  // Your agent can now use any MCP tool!
-});
-```
-
-</div>
-
-<div>
-
-## MCP in Action
-
-```typescript
-// Connect to an MCP server
-const mcpClient = new MCPClient({
-  serverUrl: 'http://localhost:3000'
-});
-
-// Get available tools
-const tools = await mcpClient.getTools();
-// e.g., filesystem, database, API tools
-
-// Use in your Mastra agent
-const agent = new Agent({
-  name: 'DataAnalyst',
-  tools: {
-    readFile: tools.readFile,
-    queryDB: tools.queryDatabase,
-    callAPI: tools.httpRequest
-  }
-});
-```
-
-</div>
-
-</div>
-
----
-layout: center
----
-
-# mcp.shop 🛒
-
-<div class="text-xl">
-
-## Discover MCP Tools
-
-<div class="mt-8">
-
-🌐 **[mcp.shop](https://mcp.shop)** - The MCP tool marketplace
-
-</div>
-
-<div class="grid grid-cols-3 gap-4 mt-8">
-
-<div class="p-4 bg-gray-100 rounded">
-
-### Data Sources
-- Databases
-- File systems  
-- APIs
-- Cloud storage
-
-</div>
-
-<div class="p-4 bg-gray-100 rounded">
-
-### Productivity
-- GitHub
-- Slack
-- Email
-- Calendar
-
-</div>
-
-<div class="p-4 bg-gray-100 rounded">
-
-### Specialized
-- Web scraping
-- Data analysis
-- Code execution
-- Custom tools
-
-</div>
-
-</div>
-
-<div class="mt-8 text-lg">
-
-**Why it matters**: Instantly add capabilities to your Mastra agents without writing integrations!
 
 </div>
 
