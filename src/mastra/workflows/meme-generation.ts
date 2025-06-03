@@ -5,7 +5,6 @@ import {
   findBaseMemeStep,
   generateCaptionsStep,
   generateMemeStep,
-  publishMemeStep,
 } from './steps';
 
 export const memeGenerationWorkflow = createWorkflow({
@@ -17,9 +16,7 @@ export const memeGenerationWorkflow = createWorkflow({
   }),
   outputSchema: z.object({
     shareableUrl: z.string(),
-    originalUrl: z.string(),
-    hosting: z.string(),
-    clickableMessage: z.string(),
+    pageUrl: z.string().optional(),
     analysis: z.object({
       message: z.string(),
     }),
@@ -29,7 +26,6 @@ export const memeGenerationWorkflow = createWorkflow({
     findBaseMemeStep,
     generateCaptionsStep,
     generateMemeStep,
-    publishMemeStep,
   ],
 });
 
@@ -59,15 +55,18 @@ memeGenerationWorkflow
   })
   .then(generateMemeStep)
   .map({
-    imageGenerated: {
+    shareableUrl: {
       step: generateMemeStep,
-      path: 'imageGenerated',
+      path: 'imageUrl',
     },
-    captions: {
+    pageUrl: {
       step: generateMemeStep,
-      path: 'captions',
+      path: 'pageUrl',
+    },
+    analysis: {
+      step: generateMemeStep,
+      path: 'analysis',
     },
   })
-  .then(publishMemeStep)
   .commit();
 
