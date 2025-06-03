@@ -26,6 +26,8 @@ layout: two-cols
 **Today's Mission:**  
 Build an AI-powered meme generator that transforms workplace frustrations into shareable content
 
+Find the materials in the `#workshop-ai-agents-with-mastra` channel in Slack!
+
 **Format:**
 - 20 min intro & concepts
 - 90 min hands-on coding
@@ -597,6 +599,13 @@ layout: center
 layout: center
 ---
 
+
+# [mcp.shop](https://mcp.shop)
+
+---
+layout: center
+---
+
 # Thank You! 🙏
 
 <div class="text-xl">
@@ -604,8 +613,7 @@ layout: center
 ## Resources
 
 - 📚 **Docs**: [mastra.ai/docs](https://mastra.ai/docs)
-- 💻 **GitHub**: [github.com/mastraai/mastra](https://github.com/mastraai/mastra)
-- 💬 **Discord**: [mastra.ai/discord](https://mastra.ai/discord)
+- 💻 **GitHub**: [https://github.com/mastra-ai/mastra](https://github.com/mastra-ai/mastra)
 
 ## Your Feedback Matters!
 
