@@ -7,5 +7,5 @@ export const memeTemplateSchema = z.object({
   url: z.string(),
   width: z.number(),
   height: z.number(),
-  box_count: z.number()
-}); 
+  box_count: z.number(),
+});

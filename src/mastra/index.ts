@@ -6,14 +6,13 @@ import { memeGenerationWorkflow } from './workflows/meme-generation';
 export const mastra = new Mastra({
   storage,
   agents: {
-    memeGenerator: memeGeneratorAgent
+    memeGenerator: memeGeneratorAgent,
   },
   workflows: {
-    'meme-generation': memeGenerationWorkflow
+    'meme-generation': memeGenerationWorkflow,
   },
   // Re-enable telemetry now that storage is configured
   telemetry: {
-    enabled: true
-  }
+    enabled: true,
+  },
 });
-        

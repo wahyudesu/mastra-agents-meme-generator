@@ -7,34 +7,34 @@ export const findBaseMemeStep = createStep({
   description: "Get a diverse selection of meme templates from Imgflip's free API",
   inputSchema: frustrationsSchema.extend({
     analysis: z.object({
-      message: z.string()
-    })
+      message: z.string(),
+    }),
   }),
   outputSchema: z.object({
     templates: z.array(memeTemplateSchema),
     searchCriteria: z.object({
       categories: z.array(z.string()),
       mood: z.string(),
-      style: z.string()
+      style: z.string(),
     }),
     totalAvailable: z.number(),
     matchingStrategy: z.string(),
     analysis: z.object({
-      message: z.string()
-    })
+      message: z.string(),
+    }),
   }),
   execute: async ({ inputData }) => {
     try {
-      console.log("🔍 Fetching diverse meme templates from Imgflip...");
-      
+      console.log('🔍 Searching for the perfect meme templates...');
+
       // Get popular memes from Imgflip's free API
       const response = await fetch('https://api.imgflip.com/get_memes');
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error('Failed to fetch memes from Imgflip');
       }
-      
+
       const allMemes = data.data.memes;
       console.log(`📚 Found ${allMemes.length} available meme templates`);
       
@@ -49,7 +49,7 @@ export const findBaseMemeStep = createStep({
         url: meme.url,
         width: meme.width,
         height: meme.height,
-        box_count: meme.box_count
+        box_count: meme.box_count,
       }));
       
       console.log(`✅ Selected ${selectedMemes.length} diverse meme templates`);
@@ -58,9 +58,9 @@ export const findBaseMemeStep = createStep({
       return {
         templates: selectedMemes,
         searchCriteria: {
-          categories: inputData.frustrations.map((f) => f.category),
+          categories: inputData.frustrations.map(f => f.category),
           mood: inputData.overallMood,
-          style: inputData.suggestedMemeStyle
+          style: inputData.suggestedMemeStyle,
         },
         totalAvailable: allMemes.length,
         matchingStrategy: 'diverse_selection',
@@ -72,5 +72,5 @@ export const findBaseMemeStep = createStep({
       console.error('Error finding base memes:', error);
       throw new Error('Failed to search for meme templates');
     }
-  }
-}); 
+  },
+});

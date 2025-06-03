@@ -38,7 +38,7 @@ graph LR
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - OpenAI API key (for caption generation and image creation)
 - Basic knowledge of Next.js and TypeScript
 
@@ -76,21 +76,22 @@ Our main agent understands user frustrations and orchestrates the meme generatio
 ```typescript
 // Simplified agent structure
 const memeAgent = new Agent({
-  name: "MemeGenerator",
-  instructions: "Help users turn their work frustrations into funny memes",
+  name: 'MemeGenerator',
+  instructions: 'Help users turn their work frustrations into funny memes',
   tools: {
     extractFrustrations: extractFrustrationsTools,
     findBaseMeme: findBaseMemeTools,
     generateCaptions: generateCaptionsTools,
     generateMeme: generateMemeTools,
-    publishMeme: publishMemeTools
-  }
+    publishMeme: publishMemeTools,
+  },
 });
 ```
 
 ### Tool Architecture
 
 Each tool in our workflow is designed to be:
+
 - **Modular**: Can be used independently or as part of the workflow
 - **Typed**: Uses Zod schemas for input/output validation
 - **Testable**: Can be tested in isolation using Mastra's testing tools
@@ -101,6 +102,7 @@ Each tool in our workflow is designed to be:
 ### Exercise 1: Enhance Frustration Extraction
 
 Improve the frustration extraction tool to categorize frustrations by:
+
 - Department (Engineering, Sales, Marketing, etc.)
 - Severity (Mild annoyance, Major blocker, etc.)
 - Type (Process, People, Technology, etc.)
@@ -108,14 +110,16 @@ Improve the frustration extraction tool to categorize frustrations by:
 ### Exercise 2: Add Caption Style Variations
 
 Extend the caption generation to support different styles:
+
 - Professional/workplace-safe captions
-- Casual/friendly captions  
+- Casual/friendly captions
 - Sarcastic/edgy captions
 - Industry-specific humor (tech, sales, etc.)
 
 ### Exercise 3: Create a Meme Gallery
 
 Build a tool that:
+
 - Stores generated memes in a local database
 - Creates a gallery view of past memes
 - Allows users to regenerate variations of successful memes
@@ -123,6 +127,7 @@ Build a tool that:
 ### Exercise 4: Add Social Sharing
 
 Implement tools for:
+
 - Direct sharing to Slack channels
 - Generating QR codes for easy mobile sharing
 - Creating meme collections for team retrospectives
@@ -133,20 +138,20 @@ Implement tools for:
 
 ```typescript
 const extractFrustrationsTools = createTool({
-  id: "extract-frustrations",
-  description: "Extract and categorize user frustrations from raw input",
+  id: 'extract-frustrations',
+  description: 'Extract and categorize user frustrations from raw input',
   inputSchema: z.object({
-    userInput: z.string().describe("Raw user input about work frustrations")
+    userInput: z.string().describe('Raw user input about work frustrations'),
   }),
   execute: async ({ context: { userInput } }) => {
     // Uses Vercel AI SDK with structured generation
     const result = await generateObject({
       model: openai('gpt-4'),
       schema: frustrationsSchema,
-      prompt: `Extract frustrations from: ${userInput}`
+      prompt: `Extract frustrations from: ${userInput}`,
     });
     return result.object;
-  }
+  },
 });
 ```
 
@@ -154,18 +159,18 @@ const extractFrustrationsTools = createTool({
 
 ```typescript
 const findBaseMemeTools = createTool({
-  id: "find-base-meme",
+  id: 'find-base-meme',
   description: "Search for appropriate meme templates using Imgflip's free API",
   inputSchema: z.object({
     frustrations: frustrationsSchema,
-    style: z.string().optional()
+    style: z.string().optional(),
   }),
   execute: async ({ context: { frustrations, style } }) => {
     // Search Imgflip's free API for relevant meme templates
     const response = await fetch('https://api.imgflip.com/get_memes');
     const templates = await filterRelevantMemes(response, frustrations);
     return { templates };
-  }
+  },
 });
 ```
 
@@ -173,22 +178,22 @@ const findBaseMemeTools = createTool({
 
 ```typescript
 const generateCaptionsTools = createTool({
-  id: "generate-captions",
-  description: "Generate meme captions based on frustrations and template",
+  id: 'generate-captions',
+  description: 'Generate meme captions based on frustrations and template',
   inputSchema: z.object({
     frustrations: frustrationsSchema,
     baseTemplate: baseTemplateSchema,
-    style: z.enum(["workplace_safe", "casual", "sarcastic"]).optional()
+    style: z.enum(['workplace_safe', 'casual', 'sarcastic']).optional(),
   }),
   execute: async ({ context: { frustrations, baseTemplate, style } }) => {
     // Generate contextual, funny captions using AI
     const captions = await generateObject({
       model: openai('gpt-4'),
       schema: captionsSchema,
-      prompt: `Create funny captions for ${baseTemplate.name} based on: ${frustrations}`
+      prompt: `Create funny captions for ${baseTemplate.name} based on: ${frustrations}`,
     });
     return captions.object;
-  }
+  },
 });
 ```
 
@@ -196,18 +201,19 @@ const generateCaptionsTools = createTool({
 
 ```typescript
 const generateMemeTools = createTool({
-  id: "generate-meme",
-  description: "Create custom meme using OpenAI with base template and captions",
+  id: 'generate-meme',
+  description:
+    'Create custom meme using OpenAI with base template and captions',
   inputSchema: z.object({
     baseTemplate: baseTemplateSchema,
     captions: captionsSchema,
-    style: z.enum(["photorealistic", "cartoon", "classic_meme"]).optional()
+    style: z.enum(['photorealistic', 'cartoon', 'classic_meme']).optional(),
   }),
   execute: async ({ context: { baseTemplate, captions, style } }) => {
     // Use OpenAI DALL-E to create meme with specific template and text
     const memeImage = await generateMemeImage(baseTemplate, captions, style);
     return { imageUrl: memeImage.url };
-  }
+  },
 });
 ```
 
@@ -215,17 +221,17 @@ const generateMemeTools = createTool({
 
 ```typescript
 const publishMemeTools = createTool({
-  id: "publish-meme",
-  description: "Upload meme to hosting service and get shareable URL",
+  id: 'publish-meme',
+  description: 'Upload meme to hosting service and get shareable URL',
   inputSchema: z.object({
     imageUrl: z.string(),
-    title: z.string().optional()
+    title: z.string().optional(),
   }),
   execute: async ({ context: { imageUrl, title } }) => {
     // Upload to Imgur for free hosting with fallback handling
     const hostedUrl = await uploadToImageHost(imageUrl, title);
     return { shareableUrl: hostedUrl };
-  }
+  },
 });
 ```
 
@@ -256,12 +262,14 @@ npm run dev
 ## 🎨 Customization Ideas
 
 ### Meme Styles
+
 - **Corporate Humor**: Professional-looking memes safe for work
 - **Developer Memes**: Programming and tech-specific templates
 - **Remote Work**: Memes about working from home challenges
 - **Meeting Memes**: Specifically about meeting frustrations
 
 ### Integration Options
+
 - **Slack Bot**: Deploy as a Slack app for team use
 - **Teams Integration**: Microsoft Teams bot for enterprise
 - **Discord Bot**: For gaming/tech communities
@@ -272,11 +280,13 @@ npm run dev
 ### Common Issues
 
 1. **OpenAI API Errors**
+
    - Verify your API key is correct and has sufficient credits
    - Check rate limits if getting 429 errors
    - Ensure you have access to DALL-E image generation
 
 2. **Imgflip API Issues**
+
    - The free API works without authentication for basic features
    - Check API rate limits if making many requests
    - Verify internet connectivity
@@ -330,4 +340,4 @@ MIT License - feel free to use this code for your own projects and workshops.
 
 ---
 
-**Happy meme generating!** 🎭 Turn those work frustrations into laughs and learn about agentic AI workflows in the process! 
+**Happy meme generating!** 🎭 Turn those work frustrations into laughs and learn about agentic AI workflows in the process!
