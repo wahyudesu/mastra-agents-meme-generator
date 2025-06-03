@@ -9,18 +9,12 @@
     "skipLibCheck": true,
     "noEmit": true,
     "outDir": "dist",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["esnext"],
     "allowJs": true,
     "incremental": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "isolatedModules": true
   },
-  "include": ["src/**/*", ".next/types/**/*.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }
