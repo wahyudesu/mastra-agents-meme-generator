@@ -6,7 +6,8 @@
     "dev": "mastra dev",
     "build": "mastra build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -34,6 +35,7 @@
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
     "mastra": "^0.10.1",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   }
 }

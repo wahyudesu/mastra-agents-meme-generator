@@ -2,37 +2,46 @@ import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { frustrationsSchema, memeTemplateSchema, captionsSchema } from '../schemas';
+import {
+  frustrationsSchema,
+  memeTemplateSchema,
+  captionsSchema,
+} from '../schemas';
 
 export const generateCaptionsStep = createStep({
-  id: "generate-captions",
-  description: "Generate meme captions based on user frustrations and selected meme template",
+  id: 'generate-captions',
+  description:
+    'Generate meme captions based on user frustrations and selected meme template',
   inputSchema: z.object({
     frustrations: frustrationsSchema,
-    baseTemplate: memeTemplateSchema
+    baseTemplate: memeTemplateSchema,
   }),
   outputSchema: captionsSchema.extend({
     baseTemplate: z.string(),
     frustrationContext: z.object({
       mainFrustration: z.string(),
-      mood: z.string()
+      mood: z.string(),
     }),
     generationStyle: z.string(),
     analysis: z.object({
-      message: z.string()
-    })
+      message: z.string(),
+    }),
   }),
   execute: async ({ inputData }) => {
     try {
-      console.log(`🎨 Generating captions for "${inputData.baseTemplate.name}"...`);
-      
-      const captionStyle = "workplace_safe";
+      console.log(
+        `🎨 Generating captions for "${inputData.baseTemplate.name}"...`,
+      );
+
+      const captionStyle = 'workplace_safe';
       const mainFrustration = inputData.frustrations.frustrations[0];
-      const allFrustrations = inputData.frustrations.frustrations.map(f => f.text).join(", ");
-      
+      const allFrustrations = inputData.frustrations.frustrations
+        .map(f => f.text)
+        .join(', ');
+
       console.log(`📝 Caption style: ${captionStyle}`);
       console.log(`🎯 Main frustration: "${mainFrustration.text}"`);
-      
+
       const result = await generateObject({
         model: openai('gpt-4'),
         schema: captionsSchema,
@@ -42,7 +51,7 @@ export const generateCaptionsStep = createStep({
           Main frustration: ${mainFrustration.text}
           All frustrations: ${allFrustrations}
           Overall mood: ${inputData.frustrations.overallMood}
-          Keywords: ${inputData.frustrations.frustrations.flatMap(f => f.keywords).join(", ")}
+          Keywords: ${inputData.frustrations.frustrations.flatMap(f => f.keywords).join(', ')}
           
           Meme template context: "${inputData.baseTemplate.name}" typically has ${inputData.baseTemplate.box_count} text areas.
           
@@ -58,28 +67,30 @@ export const generateCaptionsStep = createStep({
           - Make it shareable and not offensive
           
           Generate one perfect caption pair.
-        `
+        `,
       });
-      
+
       const captions = result.object;
-      
-      console.log(`✅ Generated captions: "${captions.topText}" / "${captions.bottomText}"`);
-      
+
+      console.log(
+        `✅ Generated captions: "${captions.topText}" / "${captions.bottomText}"`,
+      );
+
       return {
         ...captions,
         baseTemplate: inputData.baseTemplate.name,
         frustrationContext: {
           mainFrustration: mainFrustration.text,
-          mood: inputData.frustrations.overallMood
+          mood: inputData.frustrations.overallMood,
         },
         generationStyle: captionStyle,
         analysis: {
-          message: `Created captions: "${captions.topText}" / "${captions.bottomText}"`
-        }
+          message: `Created captions: "${captions.topText}" / "${captions.bottomText}"`,
+        },
       };
     } catch (error) {
       console.error('Error generating captions:', error);
       throw new Error('Failed to generate meme captions');
     }
-  }
-}); 
+  },
+});

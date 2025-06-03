@@ -3,11 +3,12 @@ import { z } from 'zod';
 import { memeTemplateSchema, captionsSchema } from '../schemas';
 
 export const generateMemeStep = createStep({
-  id: "generate-meme",
-  description: "Create a meme using imgflip's API with the selected template and captions",
+  id: 'generate-meme',
+  description:
+    "Create a meme using imgflip's API with the selected template and captions",
   inputSchema: z.object({
     baseTemplate: memeTemplateSchema,
-    captions: captionsSchema
+    captions: captionsSchema,
   }),
   outputSchema: z.object({
     imageGenerated: z.boolean(),
@@ -15,39 +16,47 @@ export const generateMemeStep = createStep({
     pageUrl: z.string().optional(),
     captions: z.object({
       topText: z.string(),
-      bottomText: z.string()
+      bottomText: z.string(),
     }),
     baseTemplate: z.string(),
     memeStyle: z.string(),
     humorLevel: z.string(),
     analysis: z.object({
-      message: z.string()
-    })
+      message: z.string(),
+    }),
   }),
   execute: async ({ inputData }) => {
     try {
       console.log(`🎨 Creating meme using imgflip API...`);
-      
-      console.log(`🖼️  Template: "${inputData.baseTemplate.name}" (ID: ${inputData.baseTemplate.id})`);
+
+      console.log(
+        `🖼️  Template: "${inputData.baseTemplate.name}" (ID: ${inputData.baseTemplate.id})`,
+      );
       console.log(`📝 Top text: "${inputData.captions.topText}"`);
       console.log(`📝 Bottom text: "${inputData.captions.bottomText}"`);
-      
+
       // Check if imgflip credentials are available (optional for basic usage)
       const username = process.env.IMGFLIP_USERNAME;
       const password = process.env.IMGFLIP_PASSWORD;
-      
+
       let finalUsername: string;
       let finalPassword: string;
-      
+
       if (!username || !password) {
-        console.warn('⚠️ IMGFLIP_USERNAME or IMGFLIP_PASSWORD not found in environment variables');
-        console.warn('⚠️ Using default imgflip_hubot account (may be rate limited or fail)');
+        console.warn(
+          '⚠️ IMGFLIP_USERNAME or IMGFLIP_PASSWORD not found in environment variables',
+        );
+        console.warn(
+          '⚠️ Using default imgflip_hubot account (may be rate limited or fail)',
+        );
         console.warn('⚠️ Please add your imgflip credentials to .env file');
         // Use default fallback
         finalUsername = 'imgflip_hubot';
         finalPassword = 'imgflip_hubot';
       } else {
-        console.log('✅ Using custom imgflip credentials from environment variables');
+        console.log(
+          '✅ Using custom imgflip credentials from environment variables',
+        );
         console.log(`👤 Username: ${username}`);
         finalUsername = username;
         finalPassword = password;
@@ -71,11 +80,13 @@ export const generateMemeStep = createStep({
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: formData
+          body: formData,
         });
       } catch (fetchError) {
         console.error('Network error when calling imgflip API:', fetchError);
-        throw new Error(`Network error: Failed to connect to imgflip API. Please check your internet connection.`);
+        throw new Error(
+          `Network error: Failed to connect to imgflip API. Please check your internet connection.`,
+        );
       }
 
       if (!response.ok) {
@@ -83,18 +94,22 @@ export const generateMemeStep = createStep({
         console.error('Imgflip API Error:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorText
+          error: errorText,
         });
-        
-        throw new Error(`Imgflip API error (${response.status}): ${errorText || 'Unknown error'}`);
+
+        throw new Error(
+          `Imgflip API error (${response.status}): ${errorText || 'Unknown error'}`,
+        );
       }
 
       const result = await response.json();
-      
+
       // Check if imgflip API returned success
       if (!result.success) {
         console.error('Imgflip API returned error:', result.error_message);
-        throw new Error(`Imgflip API error: ${result.error_message || 'Unknown error'}`);
+        throw new Error(
+          `Imgflip API error: ${result.error_message || 'Unknown error'}`,
+        );
       }
 
       const imageUrl = result.data.url;
@@ -105,7 +120,7 @@ export const generateMemeStep = createStep({
       if (pageUrl) {
         console.log(`📄 Page URL: ${pageUrl}`);
       }
-      
+
       // Store the image URL for the publish step
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global as any).lastGeneratedMemeUrl = imageUrl;
@@ -116,18 +131,20 @@ export const generateMemeStep = createStep({
         pageUrl,
         captions: {
           topText: inputData.captions.topText,
-          bottomText: inputData.captions.bottomText
+          bottomText: inputData.captions.bottomText,
         },
         baseTemplate: inputData.baseTemplate.name,
         memeStyle: inputData.captions.memeStyle,
         humorLevel: inputData.captions.humorLevel,
         analysis: {
-          message: `Your meme is ready! Created "${inputData.baseTemplate.name}" meme with "${inputData.captions.topText}" / "${inputData.captions.bottomText}". View it at: ${imageUrl}`
-        }
+          message: `Your meme is ready! Created "${inputData.baseTemplate.name}" meme with "${inputData.captions.topText}" / "${inputData.captions.bottomText}". View it at: ${imageUrl}`,
+        },
       };
     } catch (error) {
       console.error('Error generating meme:', error);
-      throw new Error(`Failed to generate meme: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to generate meme: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
-  }
-}); 
+  },
+});

@@ -5,14 +5,15 @@ import {
   findBaseMemeStep,
   generateCaptionsStep,
   generateMemeStep,
-  publishMemeStep
+  publishMemeStep,
 } from './steps';
 
 export const memeGenerationWorkflow = createWorkflow({
-  id: "meme-generation",
-  description: "Complete workflow to generate memes from workplace frustrations",
+  id: 'meme-generation',
+  description:
+    'Complete workflow to generate memes from workplace frustrations',
   inputSchema: z.object({
-    userInput: z.string().describe("Raw user input about work frustrations")
+    userInput: z.string().describe('Raw user input about work frustrations'),
   }),
   outputSchema: z.object({
     shareableUrl: z.string(),
@@ -20,50 +21,50 @@ export const memeGenerationWorkflow = createWorkflow({
     hosting: z.string(),
     clickableMessage: z.string(),
     analysis: z.object({
-      message: z.string()
-    })
+      message: z.string(),
+    }),
   }),
   steps: [
     extractFrustrationsStep,
     findBaseMemeStep,
     generateCaptionsStep,
     generateMemeStep,
-    publishMemeStep
-  ]
+    publishMemeStep,
+  ],
 })
   .then(extractFrustrationsStep)
   .then(findBaseMemeStep)
   .map({
     frustrations: {
       step: extractFrustrationsStep,
-      path: "."
+      path: '.',
     },
     baseTemplate: {
       step: findBaseMemeStep,
-      path: "templates.0"
-    }
+      path: 'templates.0',
+    },
   })
   .then(generateCaptionsStep)
   .map({
     baseTemplate: {
       step: findBaseMemeStep,
-      path: "templates.0"
+      path: 'templates.0',
     },
     captions: {
       step: generateCaptionsStep,
-      path: "."
-    }
+      path: '.',
+    },
   })
   .then(generateMemeStep)
   .map({
     imageGenerated: {
       step: generateMemeStep,
-      path: "imageGenerated"
+      path: 'imageGenerated',
     },
     captions: {
       step: generateMemeStep,
-      path: "captions"
-    }
+      path: 'captions',
+    },
   })
   .then(publishMemeStep)
-  .commit(); 
+  .commit();

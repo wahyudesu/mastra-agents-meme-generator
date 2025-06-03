@@ -27,6 +27,6 @@ export const memeGeneratorAgent = new Agent({
   model: openai('gpt-4o-mini'),
   memory,
   workflows: {
-    'meme-generation': memeGenerationWorkflow
-  }
-}); 
+    'meme-generation': memeGenerationWorkflow,
+  },
+});
