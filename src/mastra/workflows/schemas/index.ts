@@ -1,0 +1,1 @@
+export { frustrationsSchema } from './frustrations';
