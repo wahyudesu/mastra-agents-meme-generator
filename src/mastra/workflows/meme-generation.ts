@@ -69,4 +69,3 @@ memeGenerationWorkflow
     },
   })
   .commit();
-
