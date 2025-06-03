@@ -46,8 +46,8 @@ npm install
 - ✅ Understand the project structure
 
 **Relevant docs**: 
-- [Mastra Getting Started](https://mastra.ai/docs/getting-started)
-- [Environment Setup](https://mastra.ai/docs/getting-started#environment-setup)
+- [Mastra Getting Started](https://mastra.ai/en/docs)
+- [Environment Setup](https://mastra.ai/en/docs/getting-started/installation)
 
 ### Instructions
 
@@ -101,7 +101,7 @@ Key files to understand:
 - ✅ Test the step in Mastra playground
 
 **Relevant docs**: 
-- [Mastra Workflows](https://mastra.ai/docs/workflows)
+- [Mastra Workflows](https://mastra.ai/en/docs/workflows/overview)
 - [Structured Generation](https://sdk.vercel.ai/docs/ai-sdk-core/generating-structured-data)
 - [Zod Documentation](https://zod.dev)
 
@@ -353,8 +353,8 @@ Real workflows often need external services. Best practices:
 - ✅ Test the complete workflow
 
 **Relevant docs**: 
-- [Workflow Composition](https://mastra.ai/docs/workflows#composition)
-- [Data Mapping](https://mastra.ai/docs/workflows#data-mapping)
+- [Mastra Workflow Flow Control](https://mastra.ai/en/docs/workflows/flow-control)
+- [Data Mapping](https://mastra.ai/en/docs/workflows/input-data-mapping)
 - [Imgflip API](https://imgflip.com/api)
 
 ### Instructions
@@ -761,8 +761,8 @@ Agents can be configured with workflows that they can trigger automatically base
 - ✅ Explore conversation memory features
 
 **Relevant docs**: 
-- [Mastra Agents](https://mastra.ai/docs/agents)
-- [Agent Memory](https://mastra.ai/docs/memory)
+- [Mastra Agents](https://mastra.ai/en/docs/agents/overview)
+- [Agent Memory](https://mastra.ai/en/docs/agents/agent-memory)
 - [AI SDK](https://sdk.vercel.ai/docs)
 
 ### Instructions
@@ -908,8 +908,8 @@ Understanding AI system behavior requires:
 - ✅ Test the complete system
 
 **Relevant docs**: 
-- [Error Handling](https://mastra.ai/docs/error-handling)
-- [Best Practices](https://mastra.ai/docs/best-practices)
+- [Error Handling](https://mastra.ai/en/docs/workflows-legacy/runtime-variables#error-handling)
+- [Best Practices](https://mastra.ai/en/docs/deployment/client#best-practices)
 
 ### Instructions
 
@@ -1221,7 +1221,6 @@ You've successfully built a complete AI-powered meme generator using Mastra!
 
 ### Resources
 - [Mastra Documentation](https://mastra.ai/docs)
-- [Workshop Repository](https://github.com/your-repo)
-- [Mastra Discord Community](https://discord.gg/mastra)
+- [Workshop Repository](https://github.com/workos/ai-eng-world-faire-workshop)
 
 Happy meme generating! 🚀
