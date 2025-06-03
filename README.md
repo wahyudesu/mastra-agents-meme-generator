@@ -4,7 +4,7 @@ Welcome to this hands-on workshop! This project demonstrates how to build **prod
 
 ## 🎬 Workshop Video Tutorial
 
-Watch the complete walkthrough of building this meme generation pipeline:
+Watch the demo of this application runnning end to end:
 
 [![Video Thumbnail](https://img.youtube.com/vi/oZmaBSuxZVA/0.jpg)](https://www.youtube.com/watch?v=oZmaBSuxZVA)
 
