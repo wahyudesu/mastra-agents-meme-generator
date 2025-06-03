@@ -85,7 +85,8 @@ npm run dev
 Key files to understand:
 - `src/mastra/index.ts` - Mastra configuration
 - `src/mastra/memory.ts` - Storage setup (already configured)
-- `app/api/` - API endpoints (we'll implement these)
+- `src/mastra/workflows/` - Where you'll create workflow steps
+- `src/mastra/agents/` - Where you'll create agents
 
 ---
 
@@ -713,7 +714,7 @@ In this step, you'll discover the power of **conversational AI agents** - entiti
 - **Agent instructions** and how they shape behavior and decision-making
 - **Memory systems** for conversation persistence across sessions
 - **Workflow integration** to automatically trigger complex processes
-- **API endpoint design** for conversational interfaces
+- **Testing agents** in the Mastra playground interface
 - **Resource and thread management** for multi-user applications
 
 ### Why This Matters
@@ -756,8 +757,8 @@ Agents can be configured with workflows that they can trigger automatically base
 **What you'll complete**:
 - ✅ Create a Mastra agent with instructions
 - ✅ Connect the agent to the workflow
-- ✅ Implement the API endpoint
-- ✅ Test the conversational interface
+- ✅ Test the agent in Mastra playground
+- ✅ Explore conversation memory features
 
 **Relevant docs**: 
 - [Mastra Agents](https://mastra.ai/docs/agents)
@@ -822,75 +823,34 @@ export const mastra = new Mastra({
 });
 ```
 
-#### 3. Implement the API Endpoint
-Update `app/api/meme-generator/route.ts`:
-```typescript
-import { mastra } from '../../../src/mastra';
-import { NextRequest, NextResponse } from 'next/server';
+#### 3. Test the Agent in Mastra Playground
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { message, resourceId, threadId } = body;
+Now that your agent is registered, you can test it directly in the Mastra playground!
 
-    if (!message) {
-      return NextResponse.json(
-        { error: 'Message is required' },
-        { status: 400 },
-      );
-    }
+1. **Open the Mastra playground**: http://localhost:4111/agents
+2. **Click on "memeGenerator"** in the agents list
+3. **Test with messages like**:
+   - "My meetings always run over time and nobody respects the agenda"
+   - "Our deployment process is a nightmare"
+   - "I'm tired of explaining the same thing to different teams"
 
-    // Get the meme generator agent
-    const agent = mastra.getAgent('memeGenerator');
-
-    if (!agent) {
-      return NextResponse.json(
-        { error: 'Meme generator agent not found' },
-        { status: 500 },
-      );
-    }
-
-    // Generate response with memory support
-    const memoryConfig = {
-      resourceId: resourceId || 'default_user',
-      threadId: threadId || 'meme_generation_thread',
-    };
-
-    const response = await agent.generate(message, memoryConfig);
-
-    return NextResponse.json({
-      success: true,
-      response: response,
-      memoryConfig,
-    });
-  } catch (error) {
-    console.error('Error in meme generator API:', error);
-
-    return NextResponse.json(
-      {
-        error: 'Failed to process request',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 },
-    );
-  }
-}
-```
-
-#### 4. Test the Agent
-1. Use a tool like Postman or curl to test:
-```bash
-curl -X POST http://localhost:4111/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": "My meetings always run over time and nobody respects the agenda"}'
-```
-
-2. Or create a simple test page to interact with the agent through a UI
-
-3. The agent should:
+4. **The agent should**:
    - Understand your frustration
-   - Run the workflow automatically
-   - Return a meme URL with a fun message
+   - Automatically trigger the meme-generation workflow
+   - Return a meme URL with an enthusiastic message
+
+#### 4. Understanding Agent Behavior
+
+The Mastra playground provides several helpful features for testing:
+- **Conversation history**: See all messages in the current thread
+- **Resource/Thread management**: Test with different user contexts
+- **Real-time execution**: Watch the workflow steps execute
+- **Debug information**: See what the agent is thinking and doing
+
+Try these experiments:
+- Send multiple messages to see conversation memory in action
+- Change the resourceId to simulate different users
+- Ask follow-up questions like "Make another one about meetings"
 
 ---
 
@@ -953,229 +913,127 @@ Understanding AI system behavior requires:
 
 ### Instructions
 
-#### 1. Add Chat History Endpoint
-**What this does**: Create an API endpoint that allows clients to retrieve conversation history, enabling features like conversation persistence across sessions and conversation replay.
+#### 1. Polish Your Agent Instructions
+**What this does**: Refine your agent to handle edge cases and provide a better user experience.
 
-Create `app/api/chat-history/route.ts`:
+Update `src/mastra/agents/meme-generator.ts` with improved instructions:
 ```typescript
-import { mastra } from '@/src/mastra';
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest) {
-  try {
-    const url = new URL(request.url);
-    const resourceId = url.searchParams.get('resourceId') || 'default_user';
-    const threadId = url.searchParams.get('threadId') || 'meme_generation_thread';
-
-    // Input validation for production use
-    if (resourceId.length > 100 || threadId.length > 100) {
-      return NextResponse.json(
-        { error: 'Resource ID and Thread ID must be under 100 characters' },
-        { status: 400 },
-      );
-    }
-
-    // Fetch conversation history from Mastra's memory system
-    const messages = await mastra.memory.getMessages({
-      resourceId,
-      threadId,
-    });
-
-    // Filter out sensitive information if needed
-    const publicMessages = messages.map(msg => ({
-      id: msg.id,
-      content: msg.content,
-      role: msg.role,
-      timestamp: msg.createdAt,
-      // Exclude: rawContent, toolInvocations, internal metadata
-    }));
-
-    return NextResponse.json({
-      success: true,
-      messages: publicMessages,
-      count: publicMessages.length,
-      pagination: {
-        // In production, you'd implement pagination
-        hasMore: false,
-        cursor: null,
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching chat history:', error);
+export const memeGeneratorAgent = new Agent({
+  name: 'MemeGenerator',
+  instructions: `
+    You are a helpful AI assistant that turns workplace frustrations into funny, shareable memes. 
     
-    // Don't expose internal error details to clients
-    const isProduction = process.env.NODE_ENV === 'production';
+    CRITICAL: When a user describes ANY workplace frustration (even briefly), IMMEDIATELY run the "meme-generation" workflow. Do NOT ask for more details.
     
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch chat history',
-        details: isProduction ? 'Internal server error' : error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 },
-    );
-  }
-}
+    WORKFLOW - Run the complete meme generation workflow:
+    Use the "meme-generation" workflow when user mentions any frustration. This workflow will:
+    1. Extract frustrations from user input
+    2. Find appropriate meme templates
+    3. Generate captions
+    4. Create the meme image
+    
+    After running the workflow, examine the output for the shareableUrl and present it to the user with an enthusiastic, celebratory message that relates to their frustration.
+    
+    You have access to chat history, so you can reference previous conversations and memes created for the user.
+    
+    EDGE CASES:
+    - If someone just says "hi" or greets you, ask them about their work frustrations
+    - If they mention something positive, acknowledge it but ask if they have any frustrations to turn into memes
+    - If the workflow fails, apologize and ask them to try describing their frustration differently
+    - Keep track of memes you've created for each user to avoid repetition
+  `,
+  model: openai('gpt-4o-mini'),
+  memory,
+  workflows: {
+    'meme-generation': memeGenerationWorkflow,
+  },
+});
 ```
-
-### Why This Endpoint Matters
-
-**🔄 Conversation Continuity**:
-- Users can see their previous interactions when they return
-- Context is preserved across browser sessions or app restarts
-- Users can reference previous memes or conversations
-
-**🐛 Debugging Support**:
-- Support teams can view conversation history to help users
-- Developers can analyze conversation patterns and improve agent responses
-- System administrators can track usage patterns
-
-**📱 Multi-platform Support**:
-- Web apps, mobile apps, and desktop clients can all access the same history
-- Conversations started on one device continue seamlessly on another
-
-**🔒 Privacy Considerations**:
-The endpoint filters out sensitive internal data and includes input validation to prevent abuse. In production, you'd also add:
-- Authentication to ensure users only see their own conversations
-- Rate limiting to prevent API abuse
-- Data retention policies for GDPR compliance
 
 #### 2. Test the Complete System
-**What this does**: Implement a comprehensive testing strategy that validates the entire application from user input to meme generation, including error scenarios and edge cases.
+**What this does**: Validate your entire application works smoothly from user input to meme generation.
 
-### 🧪 Testing Strategy
+### 🧪 Testing in Mastra Playground
 
-**A. Functional Testing - Happy Path**
-```bash
-# Test 1: Basic meme generation
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Our deployment process is a nightmare", "resourceId": "test_user_1", "threadId": "test_thread_1"}'
+**A. Basic Functionality**
+1. Go to http://localhost:4111/agents/memeGenerator
+2. Test these scenarios:
+   - **Happy path**: "My meetings always run over time"
+   - **Multiple frustrations**: "Meetings are too long AND deployment is broken"
+   - **Follow-up**: "Make another one about the same issue"
+   - **Memory test**: Close and reopen the playground, continue the conversation
 
-# Test 2: Conversation continuity
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Make another one about meetings", "resourceId": "test_user_1", "threadId": "test_thread_1"}'
+**B. Edge Cases**
+Test how your agent handles:
+- **Greeting**: "Hi there!"
+- **Positive input**: "I love my job!"
+- **Unclear input**: "It's just... you know?"
+- **Non-work topics**: "What's the weather like?"
 
-# Test 3: Chat history retrieval
-curl "http://localhost:3000/api/chat-history?resourceId=test_user_1&threadId=test_thread_1"
-```
-
-**B. Error Handling Testing**
-```bash
-# Test 4: Missing message
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{}'
-
-# Test 5: Invalid input
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": ""}'
-
-# Test 6: Very long input
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": "'$(printf 'a%.0s' {1..10000})'"}'
-```
-
-**C. Edge Case Testing**
-```bash
-# Test 7: Non-frustration input
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What is the weather like?", "resourceId": "test_user_2", "threadId": "test_thread_2"}'
-
-# Test 8: Multiple users/threads isolation
-curl -X POST http://localhost:3000/api/meme-generator \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Different user frustration", "resourceId": "test_user_3", "threadId": "test_thread_3"}'
-```
-
-### ✅ Expected Results
-
-**Successful meme generation should return**:
-```json
-{
-  "success": true,
-  "response": "I totally understand your frustration with deployments! Here's a meme that captures that pain: https://i.imgflip.com/xyz123.jpg - May this meme bring some levity to your deployment woes! 😄",
-  "memoryConfig": {
-    "resourceId": "test_user_1", 
-    "threadId": "test_thread_1"
-  }
-}
-```
-
-**Error responses should be graceful**:
-```json
-{
-  "error": "Message is required",
-  "details": "Request body must include a 'message' field"
-}
-```
-
-**Chat history should show conversation flow**:
-```json
-{
-  "success": true,
-  "messages": [
-    {
-      "id": "msg_1",
-      "content": "Our deployment process is a nightmare", 
-      "role": "user",
-      "timestamp": "2024-01-01T12:00:00Z"
-    },
-    {
-      "id": "msg_2", 
-      "content": "I totally understand your frustration...",
-      "role": "assistant",
-      "timestamp": "2024-01-01T12:00:05Z"
-    }
-  ],
-  "count": 2
-}
-```
+**C. Workflow Monitoring**
+While testing, observe:
+- **Execution tab**: Watch each workflow step complete
+- **Memory tab**: See conversation history build up
+- **Logs**: Check for any errors or warnings
 
 ### 🐛 What to Test For
 
 1. **Workflow reliability**: Does the meme generation pipeline complete successfully?
-2. **Memory persistence**: Are conversations maintained across API calls?
-3. **Error resilience**: Does the system handle failures gracefully?
-4. **User isolation**: Can different users have separate conversations?
+2. **Memory persistence**: Are conversations maintained across sessions?
+3. **Error resilience**: Does the agent handle unexpected inputs gracefully?
+4. **User isolation**: Do different resourceIds maintain separate conversations?
 5. **Response quality**: Are agent responses appropriate and helpful?
-6. **Performance**: Are response times reasonable (< 30 seconds for meme generation)?
+6. **Performance**: Are response times reasonable (workflows should complete in < 30 seconds)?
+
+### ✅ Expected Behavior
+
+**Successful interaction**:
+- User: "My meetings always run over time"
+- Agent: "I totally understand your frustration with meetings! 🎉 Here's a meme that captures that pain perfectly: [meme URL]. May this bring some levity to your meeting marathon!"
+
+**Edge case handling**:
+- User: "Hi there!"
+- Agent: "Hey! I'm here to turn your workplace frustrations into hilarious memes. What's been driving you crazy at work lately?"
+
+**Memory demonstration**:
+- User: "Make another one"
+- Agent: "Based on your previous frustration about meetings, here's another meme: [different meme URL]"
 
 #### 3. Production Considerations
 **What this does**: Transform your workshop project into an application ready for real users by addressing scalability, security, and reliability concerns.
 
-### 🛡️ Security & Authentication
+### 🛡️ Security & Best Practices
 
-**API Security**:
+**Agent Security**:
 ```typescript
-// Add to your API routes
-import rateLimit from 'express-rate-limit';
+// In your agent instructions, be careful about:
+// 1. Not exposing sensitive information
+// 2. Validating user inputs
+// 3. Setting appropriate rate limits
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP',
+export const memeGeneratorAgent = new Agent({
+  name: 'MemeGenerator',
+  instructions: `
+    SECURITY RULES:
+    - Never expose API keys or internal system information
+    - Only process workplace-appropriate content
+    - Reject requests for offensive or harmful content
+    - Limit meme generation to prevent abuse (max 10 per conversation)
+  `,
+  // ... rest of agent config
 });
 ```
 
-**User Authentication**:
+**Memory Isolation**:
 ```typescript
-// Example with NextAuth.js
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+// Always use unique resourceIds for different users
+const memoryConfig = {
+  resourceId: userId, // Unique per user
+  threadId: conversationId, // Unique per conversation
+};
 
-export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
-  // Use session.user.id as resourceId for memory isolation
-  const resourceId = session.user.id;
-}
+// This ensures users can't see each other's conversations
+await agent.generate(message, memoryConfig);
 ```
 
 ### 📊 Monitoring & Observability
@@ -1199,24 +1057,23 @@ console.log(JSON.stringify({
 
 **Error Tracking**:
 ```typescript
-// Example with Sentry
-import * as Sentry from '@sentry/nextjs';
-
-export async function POST(request: NextRequest) {
-  try {
-    // ... your code
-  } catch (error) {
-    Sentry.captureException(error, {
-      tags: {
-        component: 'meme-generator-api',
-        operation: 'agent-generate',
-      },
-      user: { id: resourceId },
-    });
-    
-    throw error;
-  }
-}
+// In your workflow steps, always handle errors gracefully
+export const generateMemeStep = createStep({
+  execute: async ({ inputData }) => {
+    try {
+      // Your meme generation logic
+    } catch (error) {
+      console.error('Meme generation failed:', {
+        error: error.message,
+        template: inputData.baseTemplate.name,
+        timestamp: new Date().toISOString(),
+      });
+      
+      // Return a fallback or retry logic
+      throw new Error('Failed to generate meme - please try again');
+    }
+  },
+});
 ```
 
 ### ⚡ Performance Optimization
@@ -1239,28 +1096,26 @@ async function getCachedMemeTemplates() {
 }
 ```
 
-**Response Streaming**:
+**Workflow Optimization**:
 ```typescript
-// For real-time workflow updates
-export async function POST(request: NextRequest) {
-  const encoder = new TextEncoder();
-  
-  const stream = new ReadableStream({
-    start(controller) {
-      // Stream workflow progress to client
-      mastra.on('workflow:step:complete', (data) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
-      });
-    },
-  });
-  
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-    },
-  });
-}
+// Optimize workflow performance by caching templates
+let cachedTemplates: MemeTemplate[] | null = null;
+
+export const findBaseMemeStep = createStep({
+  execute: async ({ inputData }) => {
+    // Use cached templates if available
+    if (cachedTemplates && Date.now() - lastFetch < 3600000) {
+      return { templates: cachedTemplates };
+    }
+    
+    // Otherwise fetch and cache
+    const response = await fetch('https://api.imgflip.com/get_memes');
+    const data = await response.json();
+    cachedTemplates = data.data.memes;
+    
+    return { templates: cachedTemplates };
+  },
+});
 ```
 
 ### 💾 Data Management
@@ -1328,26 +1183,19 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
-**Health Checks**:
-```typescript
-// app/api/health/route.ts
-export async function GET() {
-  try {
-    // Test database connection
-    await mastra.memory.getMessages({ resourceId: 'health_check', threadId: 'test' });
-    
-    // Test AI service
-    await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: 'test' }],
-      max_tokens: 1,
-    });
-    
-    return NextResponse.json({ status: 'healthy', timestamp: new Date().toISOString() });
-  } catch (error) {
-    return NextResponse.json({ status: 'unhealthy', error: error.message }, { status: 503 });
-  }
-}
+**Deployment with Mastra**:
+```bash
+# Build your Mastra project for production
+npm run build
+
+# Deploy to your preferred platform
+# Mastra works with any Node.js hosting provider
+
+# Environment variables for production:
+# OPENAI_API_KEY - Your OpenAI API key
+# IMGFLIP_USERNAME - Your Imgflip username (optional)
+# IMGFLIP_PASSWORD - Your Imgflip password (optional)
+# DATABASE_URL - Your database connection string
 ```
 
 ---
