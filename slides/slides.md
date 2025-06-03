@@ -352,6 +352,23 @@ layout: cover
 
 # mcp.shop
 
+---
+layout: two-cols
+---
+
+# MCP Night
+
+- Powered by WorkOS
+- Fun night of demos, discussions, and panels around MCP
+- Follow us to hear about the next one
+
+::right::
+
+<video autoplay muted loop class="w-full h-full object-cover">
+  <source src="/mcpnight.mov" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 
 ---
 layout: center
