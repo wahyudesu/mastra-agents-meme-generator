@@ -443,6 +443,8 @@ layout: fact
 
 ## Get Started:
 
+### `#workshop-ai-agents-with-mastra`
+
 ```bash
 git clone git@github.com:workos/mastra-agents-meme-generator.git
 cd mastra-agents-meme-generator
