@@ -7,3 +7,10 @@ dist
 *.db
 *.db-*
 .next/
+
+# Slidev
+*.local
+.vite-inspect
+.remote-assets
+components.d.ts
+.DS_Store
