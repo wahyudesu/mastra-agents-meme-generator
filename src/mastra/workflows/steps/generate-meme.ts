@@ -4,20 +4,20 @@ import { memeTemplateSchema, captionsSchema } from '../schemas';
 
 export const generateMemeStep = createStep({
   id: "generate-meme",
-  description: "Create a custom meme using OpenAI image generation inspired by popular meme templates",
+  description: "Create a meme using imgflip's API with the selected template and captions",
   inputSchema: z.object({
     baseTemplate: memeTemplateSchema,
     captions: captionsSchema
   }),
   outputSchema: z.object({
     imageGenerated: z.boolean(),
-    imageSize: z.string(),
+    imageUrl: z.string(),
+    pageUrl: z.string().optional(),
     captions: z.object({
       topText: z.string(),
       bottomText: z.string()
     }),
     baseTemplate: z.string(),
-    visualStyle: z.string(),
     memeStyle: z.string(),
     humorLevel: z.string(),
     analysis: z.object({
@@ -26,121 +26,103 @@ export const generateMemeStep = createStep({
   }),
   execute: async ({ inputData }) => {
     try {
-      console.log(`🎨 Creating meme using AI generation...`);
+      console.log(`🎨 Creating meme using imgflip API...`);
       
-      const visualStyle = "classic_meme";
-      
-      console.log(`🖼️  Base template inspiration: "${inputData.baseTemplate.name}"`);
+      console.log(`🖼️  Template: "${inputData.baseTemplate.name}" (ID: ${inputData.baseTemplate.id})`);
       console.log(`📝 Top text: "${inputData.captions.topText}"`);
       console.log(`📝 Bottom text: "${inputData.captions.bottomText}"`);
-      console.log(`🎨 Visual style: ${visualStyle}`);
       
-      // Create a detailed prompt that describes the meme concept
-      const prompt = `
-        Create an original meme image inspired by the concept of "${inputData.baseTemplate.name}" with the following text:
-        
-        Top text: "${inputData.captions.topText}"
-        Bottom text: "${inputData.captions.bottomText}"
-        
-        Style requirements:
-        - Create an original image that captures the essence and humor style of the "${inputData.baseTemplate.name}" meme format
-        - Add the text as clear, bold, white text with black outline (classic meme font style)
-        - Top text positioned at the top, bottom text at the bottom
-        - Use a ${visualStyle} visual style
-        - Make it look like a professional, shareable internet meme
-        - Ensure the image composition supports the ${inputData.captions.memeStyle} format
-        - Capture ${inputData.captions.humorLevel} humor level
-        - Make the text highly readable and properly sized
-        - Create original characters/scenes that convey the same type of humor as the template
-        
-        The result should be a completely original meme that people would want to share on social media.
-        Focus on creating relatable workplace humor that captures the frustration in a funny way.
-      `;
-
-      console.log(`🚀 Generating meme with gpt-image-1...`);
-
-      // Check if API key is available
-      if (!process.env.OPENAI_API_KEY) {
-        throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY in your .env file.');
+      // Check if imgflip credentials are available (optional for basic usage)
+      const username = process.env.IMGFLIP_USERNAME;
+      const password = process.env.IMGFLIP_PASSWORD;
+      
+      let finalUsername: string;
+      let finalPassword: string;
+      
+      if (!username || !password) {
+        console.warn('⚠️ IMGFLIP_USERNAME or IMGFLIP_PASSWORD not found in environment variables');
+        console.warn('⚠️ Using default imgflip_hubot account (may be rate limited or fail)');
+        console.warn('⚠️ Please add your imgflip credentials to .env file');
+        // Use default fallback
+        finalUsername = 'imgflip_hubot';
+        finalPassword = 'imgflip_hubot';
+      } else {
+        console.log('✅ Using custom imgflip credentials from environment variables');
+        console.log(`👤 Username: ${username}`);
+        finalUsername = username;
+        finalPassword = password;
       }
 
-      // Validate and potentially trim the prompt for gpt-image-1 (max ~4000 characters)
-      let finalPrompt = prompt;
-      if (prompt.length > 3500) {
-        console.warn('⚠️ Prompt is long, trimming to fit gpt-image-1 limits...');
-        finalPrompt = prompt.substring(0, 3500) + '...';
-      }
+      console.log(`🚀 Generating meme with imgflip API...`);
 
-      // Use OpenAI's image generation endpoint with proper parameters
+      // Prepare form data for imgflip API
+      const formData = new URLSearchParams();
+      formData.append('template_id', inputData.baseTemplate.id);
+      formData.append('username', finalUsername);
+      formData.append('password', finalPassword);
+      formData.append('text0', inputData.captions.topText);
+      formData.append('text1', inputData.captions.bottomText);
+
+      // Call imgflip's caption_image API
       let response;
       try {
-        response = await fetch('https://api.openai.com/v1/images/generations', {
+        response = await fetch('https://api.imgflip.com/caption_image', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: JSON.stringify({
-            model: 'gpt-image-1',
-            prompt: finalPrompt,
-            size: '1024x1024'
-          })
+          body: formData
         });
       } catch (fetchError) {
-        console.error('Network error when calling OpenAI API:', fetchError);
-        throw new Error(`Network error: Failed to connect to OpenAI API. Please check your internet connection.`);
+        console.error('Network error when calling imgflip API:', fetchError);
+        throw new Error(`Network error: Failed to connect to imgflip API. Please check your internet connection.`);
       }
 
       if (!response.ok) {
         const errorText = await response.text();
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: { message: errorText } };
-        }
-        
-        console.error('OpenAI API Error:', {
+        console.error('Imgflip API Error:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorData
+          error: errorText
         });
         
-        throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || errorText || 'Unknown error'}`);
+        throw new Error(`Imgflip API error (${response.status}): ${errorText || 'Unknown error'}`);
       }
 
-      const imageData = await response.json();
+      const result = await response.json();
       
-      // Handle both URL and base64 responses
-      let imageUrl;
-      if (imageData.data[0].url) {
-        imageUrl = imageData.data[0].url;
-      } else if (imageData.data[0].b64_json) {
-        // If we get base64, we'll need to handle it differently
-        imageUrl = `data:image/png;base64,${imageData.data[0].b64_json}`;
-      } else {
-        throw new Error('No image URL or base64 data received from OpenAI');
+      // Check if imgflip API returned success
+      if (!result.success) {
+        console.error('Imgflip API returned error:', result.error_message);
+        throw new Error(`Imgflip API error: ${result.error_message || 'Unknown error'}`);
       }
+
+      const imageUrl = result.data.url;
+      const pageUrl = result.data.page_url;
 
       console.log(`✅ Meme generated successfully!`);
+      console.log(`🔗 Image URL: ${imageUrl}`);
+      if (pageUrl) {
+        console.log(`📄 Page URL: ${pageUrl}`);
+      }
       
-      // Store the actual image URL separately for the publish step
-      // This is a workaround to avoid including massive base64 data in the conversation
+      // Store the image URL for the publish step
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global as any).lastGeneratedMemeUrl = imageUrl;
 
       return {
         imageGenerated: true,
-        imageSize: imageUrl.startsWith('data:') ? `${Math.floor(imageUrl.length/1000)}KB` : 'URL',
+        imageUrl,
+        pageUrl,
         captions: {
           topText: inputData.captions.topText,
           bottomText: inputData.captions.bottomText
         },
         baseTemplate: inputData.baseTemplate.name,
-        visualStyle,
         memeStyle: inputData.captions.memeStyle,
         humorLevel: inputData.captions.humorLevel,
         analysis: {
-          message: `Your meme is ready! Created ${visualStyle} style meme with "${inputData.captions.topText}" / "${inputData.captions.bottomText}". Now publishing it for easy sharing...`
+          message: `Your meme is ready! Created "${inputData.baseTemplate.name}" meme with "${inputData.captions.topText}" / "${inputData.captions.bottomText}". View it at: ${imageUrl}`
         }
       };
     } catch (error) {
