@@ -296,6 +296,64 @@ await agent.generate(
 </div>
 
 ---
+
+# Model Context Protocol (MCP) 🔌
+
+<div class="grid grid-cols-2 gap-8">
+
+<div>
+
+## What is MCP?
+
+**Model Context Protocol** is an open standard that acts like a **"universal plugin system for AI agents"**:
+
+- 🔗 **Standardized connections** between AI models and external tools
+- 🌐 **Cross-platform compatibility** across languages and environments
+- 🔄 **Dynamic tool discovery** - agents find and use tools on demand
+- 🛡️ **Auth** with platforms such as WorkOS - secure access and get context from identity
+
+Think of it as **USB for AI** - one standard, many tools.
+
+</div>
+
+<div>
+
+## How Mastra Uses MCP
+
+```typescript
+// Static configuration (single-user)
+const mastra = new Mastra({
+  tools: {
+    mcp: {
+      servers: {
+        filesystem: {
+          command: 'npx',
+          args: ['@modelcontextprotocol/server-filesystem', '/tmp']
+        }
+      }
+    }
+  }
+});
+
+// Dynamic configuration (multi-user)
+const tools = await getMCPTools(userId);
+const agent = new Agent({ tools });
+```
+
+**Benefits:** Agents can access file systems, databases, APIs, and custom business logic through one unified interface.
+
+</div>
+
+</div>
+
+---
+layout: cover
+---
+
+# mcp.shop
+
+
+---
 layout: center
 ---
 
