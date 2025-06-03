@@ -2,6 +2,14 @@
 
 Welcome to this hands-on workshop! This project demonstrates how to build **production-ready AI agents and workflows** using Mastra to create a fun meme generation pipeline that turns workplace frustrations into shareable memes.
 
+## 🎬 Workshop Video Tutorial
+
+Watch the complete walkthrough of building this meme generation pipeline:
+
+[![Video Thumbnail](https://img.youtube.com/vi/oZmaBSuxZVA/0.jpg)](https://www.youtube.com/watch?v=oZmaBSuxZVA)
+
+🎥 **Click above to watch the full workshop video!**
+
 While we've chosen a humorous implementation example, the **patterns, architecture, and Mastra framework** you'll learn here are ideal for creating **enterprise-grade agentic applications**. The same workflow concepts apply whether you're building customer support automation, data processing pipelines, or complex business logic orchestration.
 
 ## 🎯 What You'll Learn
