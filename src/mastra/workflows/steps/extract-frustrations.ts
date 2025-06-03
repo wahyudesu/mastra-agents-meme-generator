@@ -1,32 +1,58 @@
 import { createStep } from '@mastra/core/workflows';
+import { z } from 'zod';
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { z } from 'zod';
 import { frustrationsSchema } from '../schemas';
 
 export const extractFrustrationsStep = createStep({
   id: 'extract-frustrations',
-  description: 'Extract and categorize user frustrations from raw input',
+  description:
+    'Extract and categorize user frustrations from raw input using AI',
   inputSchema: z.object({
     userInput: z.string().describe('Raw user input about work frustrations'),
   }),
-  outputSchema: frustrationsSchema,
+  outputSchema: frustrationsSchema.extend({
+    analysis: z.object({
+      message: z.string(),
+    }),
+  }),
   execute: async ({ inputData }) => {
-    console.log('🔍 Analyzing frustrations from user input...');
+    try {
+      console.log('🔍 Analyzing your workplace frustrations...');
 
-    const result = await generateObject({
-      model: openai('gpt-4o-mini'),
-      schema: frustrationsSchema,
-      prompt: `You are an empathetic AI that understands workplace frustrations.
-      
-Extract and categorize the frustrations from this user input:
-"${inputData.userInput}"
+      const result = await generateObject({
+        model: openai('gpt-4'),
+        schema: frustrationsSchema,
+        prompt: `
+          Analyze this workplace frustration and extract structured information:
+          
+          "${inputData.userInput}"
+          
+          Extract:
+          - Individual frustrations with categories (meetings, processes, technology, communication, management, workload, other)
+          - Overall mood (frustrated, annoyed, overwhelmed, tired, angry, sarcastic)
+          - Keywords for each frustration
+          - Suggested meme style
+          
+          Keep analysis concise and focused.
+        `,
+      });
 
-Analyze each frustration mentioned and categorize it appropriately.
-Be understanding and acknowledge their feelings.`,
-    });
+      const frustrations = result.object;
 
-    console.log('✅ Frustrations extracted:', result.object.frustrations.length);
-    return result.object;
+      console.log(
+        `✅ Found ${frustrations.frustrations.length} frustrations, mood: ${frustrations.overallMood}`,
+      );
+
+      return {
+        ...frustrations,
+        analysis: {
+          message: `Analyzed your frustrations - main issue: ${frustrations.frustrations[0]?.category} (${frustrations.overallMood} mood)`,
+        },
+      };
+    } catch (error) {
+      console.error('Error extracting frustrations:', error);
+      throw new Error('Failed to analyze frustrations');
+    }
   },
 });
