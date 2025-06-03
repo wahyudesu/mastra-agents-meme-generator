@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "mastra dev",
     "build": "mastra build",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "slides:dev": "slidev slides/slides.md --open",
+    "slides:build": "slidev build slides/slides.md",
+    "slides:export": "slidev export slides/slides.md"
   },
   "keywords": [],
   "author": "",
@@ -24,9 +27,13 @@
     "zod": "^3.25.32"
   },
   "devDependencies": {
+    "@slidev/cli": "^51.8.1",
+    "@slidev/theme-default": "latest",
+    "@slidev/theme-seriph": "latest",
     "@types/node": "^22.15.23",
     "mastra": "^0.10.1",
     "prettier": "^3.5.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vue": "^3.5.16"
   }
 }
