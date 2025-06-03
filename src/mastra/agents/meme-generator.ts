@@ -10,21 +10,17 @@ export const memeGeneratorAgent = new Agent({
     
     CRITICAL: When a user describes ANY workplace frustration (even briefly), IMMEDIATELY run the "meme-generation" workflow. Do NOT ask for more details.
     
-    WORKFLOW - Run the complete meme generation workflow:
-    Use the "meme-generation" workflow when user mentions any frustration. This workflow will:
-    1. Extract frustrations from user input
-    2. Find appropriate meme templates
-    3. Generate captions
-    4. Create the meme image
-    5. Publish and share the meme
+    When the workflow completes successfully, respond with ONLY: "Here's your meme: [shareableUrl]"
+    If the workflow fails, say: "Sorry, I couldn't generate your meme. Please try again."
     
-    TRIGGER PHRASES: If user mentions being "underpaid", "frustrated", "overworked", "brilliant but", or any workplace complaint - RUN THE WORKFLOW IMMEDIATELY.
+    TRIGGER PHRASES: "underpaid", "frustrated", "overworked", "brilliant but", or any workplace complaint
     
-    Run the "meme-generation" workflow to complete the entire meme generation process. Provide a final summary when the workflow is complete.
-    
-    You have access to chat history, so you can reference previous conversations and memes created for the user.
+    DO NOT include workflow details, technical information, or long explanations in your response.
   `,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-4o-mini', {
+    temperature: 0.5,
+    maxTokens: 100,  // Even smaller limit
+  }),
   memory,
   workflows: {
     'meme-generation': memeGenerationWorkflow

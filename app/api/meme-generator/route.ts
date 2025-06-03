@@ -24,17 +24,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate response with memory support
-    // Use resourceId and threadId for persistent memory, fallback to defaults
+    // Use unique thread IDs to prevent context accumulation during testing
     const memoryConfig = {
       resourceId: resourceId || 'default_user',
-      threadId: threadId || 'meme_generation_thread'
+      threadId: threadId || `meme_thread_${Date.now()}` // Unique thread for each request during debugging
     };
 
-    const response = await agent.generate(message, memoryConfig);
+    // Wrap the message to ensure it's not too long
+    const sanitizedMessage = message.length > 1000 
+      ? message.substring(0, 1000) + '...' 
+      : message;
+    
+    console.log('Generating response for message length:', sanitizedMessage.length);
+    
+    const response = await agent.generate(sanitizedMessage, memoryConfig);
+    
+    // Ensure we're not sending massive responses back
+    const responseData = typeof response === 'string' 
+      ? response 
+      : response;
     
     return NextResponse.json({
       success: true,
-      response: response,
+      response: responseData,
       memoryConfig // Return the memory config for reference
     });
     

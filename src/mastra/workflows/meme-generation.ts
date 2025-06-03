@@ -60,6 +60,14 @@ export const memeGenerationWorkflow = createWorkflow({
       step: generateMemeStep,
       path: "imageGenerated"
     },
+    imageUrl: {
+      step: generateMemeStep,
+      path: "imageUrl"
+    },
+    pageUrl: {
+      step: generateMemeStep,
+      path: "pageUrl"
+    },
     captions: {
       step: generateMemeStep,
       path: "captions"
