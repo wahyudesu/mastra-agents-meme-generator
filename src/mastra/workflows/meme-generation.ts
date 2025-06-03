@@ -31,7 +31,9 @@ export const memeGenerationWorkflow = createWorkflow({
     generateMemeStep,
     publishMemeStep,
   ],
-})
+});
+
+memeGenerationWorkflow
   .then(extractFrustrationsStep)
   .then(findBaseMemeStep)
   .map({
@@ -68,3 +70,4 @@ export const memeGenerationWorkflow = createWorkflow({
   })
   .then(publishMemeStep)
   .commit();
+
