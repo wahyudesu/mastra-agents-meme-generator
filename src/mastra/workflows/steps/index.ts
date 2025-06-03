@@ -1,4 +1,3 @@
-// Export all steps from a central location
 export { extractFrustrationsStep } from './extract-frustrations';
 export { findBaseMemeStep } from './find-base-meme';
 export { generateCaptionsStep } from './generate-captions';

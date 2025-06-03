@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate response with memory support
-    // Use resourceId and threadId for persistent memory, fallback to defaults
     const memoryConfig = {
       resourceId: resourceId || 'default_user',
       threadId: threadId || 'meme_generation_thread',
@@ -35,7 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       response: response,
-      memoryConfig, // Return the memory config for reference
+      memoryConfig,
     });
   } catch (error) {
     console.error('Error in meme generator API:', error);

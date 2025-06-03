@@ -9,8 +9,7 @@ import {
 
 export const memeGenerationWorkflow = createWorkflow({
   id: 'meme-generation',
-  description:
-    'Complete workflow to generate memes from workplace frustrations',
+  description: 'Complete workflow to generate memes from workplace frustrations',
   inputSchema: z.object({
     userInput: z.string().describe('Raw user input about work frustrations'),
   }),
@@ -29,6 +28,7 @@ export const memeGenerationWorkflow = createWorkflow({
   ],
 });
 
+// Build the workflow chain with data mapping
 memeGenerationWorkflow
   .then(extractFrustrationsStep)
   .then(findBaseMemeStep)

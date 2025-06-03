@@ -11,7 +11,6 @@ export const mastra = new Mastra({
   workflows: {
     'meme-generation': memeGenerationWorkflow,
   },
-  // Re-enable telemetry now that storage is configured
   telemetry: {
     enabled: true,
   },

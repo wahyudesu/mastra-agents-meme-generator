@@ -4,13 +4,12 @@ import { memeTemplateSchema, captionsSchema } from '../schemas';
 
 export const generateMemeStep = createStep({
   id: 'generate-meme',
-  description: "Create a meme using imgflip's API with the selected template and captions",
+  description: "Create a meme using Imgflip's API",
   inputSchema: z.object({
     baseTemplate: memeTemplateSchema,
     captions: captionsSchema,
   }),
   outputSchema: z.object({
-    imageGenerated: z.boolean(),
     imageUrl: z.string(),
     pageUrl: z.string().optional(),
     captions: z.object({
@@ -20,10 +19,13 @@ export const generateMemeStep = createStep({
     baseTemplate: z.string(),
     memeStyle: z.string(),
     humorLevel: z.string(),
+    analysis: z.object({
+      message: z.string(),
+    }),
   }),
   execute: async ({ inputData }) => {
     try {
-      console.log(`🎨 Creating meme using imgflip API...`);
+      console.log('🎨 Creating your meme...');
 
       const username = process.env.IMGFLIP_USERNAME || 'imgflip_hubot';
       const password = process.env.IMGFLIP_PASSWORD || 'imgflip_hubot';
@@ -43,26 +45,17 @@ export const generateMemeStep = createStep({
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error(`Imgflip API error (${response.status})`);
-      }
-
       const result = await response.json();
 
       if (!result.success) {
         throw new Error(`Imgflip API error: ${result.error_message}`);
       }
 
-      const imageUrl = result.data.url;
-      const pageUrl = result.data.page_url;
-
-      console.log(`✅ Meme generated successfully!`);
-      console.log(`🔗 Image URL: ${imageUrl}`);
+      console.log('✅ Meme created successfully!');
 
       return {
-        imageGenerated: true,
-        imageUrl,
-        pageUrl,
+        imageUrl: result.data.url,
+        pageUrl: result.data.page_url,
         captions: {
           topText: inputData.captions.topText,
           bottomText: inputData.captions.bottomText,
@@ -70,12 +63,13 @@ export const generateMemeStep = createStep({
         baseTemplate: inputData.baseTemplate.name,
         memeStyle: inputData.captions.memeStyle,
         humorLevel: inputData.captions.humorLevel,
+        analysis: {
+          message: `Created ${inputData.captions.memeStyle} meme with ${inputData.captions.humorLevel} humor level`,
+        },
       };
     } catch (error) {
       console.error('Error generating meme:', error);
-      throw new Error(
-        `Failed to generate meme: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
+      throw new Error('Failed to generate meme');
     }
   },
 });
