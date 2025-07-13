@@ -1,7 +1,17 @@
 import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
+// import { openai } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/groq';
+
+import { createOpenAI } from "@ai-sdk/openai";
+
+const openai = createOpenAI({
+    baseURL: "https://ai.sumopod.com/v1",
+});
+
+// const model = groq('gemma2-9b-it');
+
 import { frustrationsSchema, memeTemplateSchema, captionsSchema } from '../schemas';
 
 export const generateCaptionsStep = createStep({
@@ -22,7 +32,7 @@ export const generateCaptionsStep = createStep({
       const mood = inputData.frustrations.overallMood;
 
       const result = await generateObject({
-        model: openai('gpt-4o-mini'),
+        model: openai('gpt-4o'),
         schema: captionsSchema,
         prompt: `
           Create meme captions for the "${inputData.baseTemplate.name}" meme template.

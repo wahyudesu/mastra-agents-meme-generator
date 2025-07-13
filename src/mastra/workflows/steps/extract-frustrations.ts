@@ -1,8 +1,13 @@
 import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
+// import { openai } from '@ai-sdk/openai';
 import { frustrationsSchema } from '../schemas';
+import { createOpenAI } from "@ai-sdk/openai";
+
+const openai = createOpenAI({
+    baseURL: "https://ai.sumopod.com/v1",
+});
 
 export const extractFrustrationsStep = createStep({
   id: 'extract-frustrations',
@@ -21,7 +26,7 @@ export const extractFrustrationsStep = createStep({
       console.log('🔍 Analyzing your workplace frustrations...');
 
       const result = await generateObject({
-        model: openai('gpt-4'),
+        model: openai('gpt-4o'),
         schema: frustrationsSchema,
         prompt: `
           Analyze this workplace frustration and extract structured information:
