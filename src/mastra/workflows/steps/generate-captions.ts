@@ -1,7 +1,7 @@
 import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
+// import { openai } from '@ai-sdk/openai';
 import { groq } from '@ai-sdk/groq';
 import { frustrationsSchema, memeTemplateSchema, captionsSchema } from '../schemas';
 
