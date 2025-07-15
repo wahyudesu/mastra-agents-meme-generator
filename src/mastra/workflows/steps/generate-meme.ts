@@ -27,8 +27,8 @@ export const generateMemeStep = createStep({
     try {
       console.log('🎨 Creating your meme...');
 
-      const username = process.env.IMGFLIP_USERNAME || 'imgflip_hubot';
-      const password = process.env.IMGFLIP_PASSWORD || 'imgflip_hubot';
+      const username = process.env.IMGFLIP_USERNAME || 'wahyudesu';
+      const password = process.env.IMGFLIP_PASSWORD || '**M@j4U_T@kMundur123!**';
 
       const formData = new URLSearchParams();
       formData.append('template_id', inputData.baseTemplate.id);
@@ -45,7 +45,14 @@ export const generateMemeStep = createStep({
         body: formData,
       });
 
-      const result = await response.json();
+      const result = await response.json() as {
+        success: boolean;
+        error_message?: string;
+        data: {
+          url: string;
+          page_url?: string;
+        };
+      };
 
       if (!result.success) {
         throw new Error(`Imgflip API error: ${result.error_message}`);

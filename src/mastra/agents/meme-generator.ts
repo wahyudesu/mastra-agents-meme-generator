@@ -4,6 +4,13 @@ import { groq } from '@ai-sdk/groq';
 import { memory } from '../memory';
 import { memeGenerationWorkflow } from '../workflows/meme-generation';
 
+// const model = groq('gemma2-9b-it');
+import { createOpenAI } from "@ai-sdk/openai";
+
+const openai = createOpenAI({
+    baseURL: "https://ai.sumopod.com/v1",
+});
+
 export const memeGeneratorAgent = new Agent({
   name: 'MemeGenerator',
   instructions: `
