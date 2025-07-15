@@ -1,5 +1,6 @@
 import { Agent } from '@mastra/core';
 import { openai } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/groq';
 import { memory } from '../memory';
 import { memeGenerationWorkflow } from '../workflows/meme-generation';
 
@@ -24,7 +25,7 @@ export const memeGeneratorAgent = new Agent({
     - If the workflow fails, apologize and ask them to try describing their frustration differently
     - Keep track of memes you've created for each user to avoid repetition
   `,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.3-70b-versatile'),
   memory,
   workflows: {
     'meme-generation': memeGenerationWorkflow,

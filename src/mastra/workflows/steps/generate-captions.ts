@@ -2,6 +2,7 @@ import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/groq';
 import { frustrationsSchema, memeTemplateSchema, captionsSchema } from '../schemas';
 
 export const generateCaptionsStep = createStep({
@@ -22,7 +23,7 @@ export const generateCaptionsStep = createStep({
       const mood = inputData.frustrations.overallMood;
 
       const result = await generateObject({
-        model: openai('gpt-4o-mini'),
+        model: groq('llama-3.3-70b-versatile'),
         schema: captionsSchema,
         prompt: `
           Create meme captions for the "${inputData.baseTemplate.name}" meme template.

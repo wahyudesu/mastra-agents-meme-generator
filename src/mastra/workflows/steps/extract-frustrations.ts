@@ -2,6 +2,7 @@ import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/groq';
 import { frustrationsSchema } from '../schemas';
 
 export const extractFrustrationsStep = createStep({
@@ -21,7 +22,7 @@ export const extractFrustrationsStep = createStep({
       console.log('🔍 Analyzing your workplace frustrations...');
 
       const result = await generateObject({
-        model: openai('gpt-4'),
+        model: groq('llama-3.3-70b-versatile'),
         schema: frustrationsSchema,
         prompt: `
           Analyze this workplace frustration and extract structured information:
