@@ -1,15 +1,10 @@
 import { Agent } from '@mastra/core';
-import { openai } from '@ai-sdk/openai';
+// import { openai } from '@ai-sdk/openai';
 import { groq } from '@ai-sdk/groq';
 import { memory } from '../memory';
 import { memeGenerationWorkflow } from '../workflows/meme-generation';
 
 // const model = groq('gemma2-9b-it');
-import { createOpenAI } from "@ai-sdk/openai";
-
-const openai = createOpenAI({
-    baseURL: "https://ai.sumopod.com/v1",
-});
 
 export const memeGeneratorAgent = new Agent({
   name: 'MemeGenerator',
@@ -33,7 +28,7 @@ export const memeGeneratorAgent = new Agent({
     - Keep track of memes you've created for each user to avoid repetition
   `,
   model: groq('llama-3.3-70b-versatile'),
-  memory,
+  // memory,
   workflows: {
     'meme-generation': memeGenerationWorkflow,
   },
