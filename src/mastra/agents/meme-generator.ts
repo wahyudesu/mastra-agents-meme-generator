@@ -6,29 +6,29 @@ import { memeGenerationWorkflow } from '../workflows/meme-generation';
 import { Memory } from "@mastra/memory";
 import { UpstashStore, UpstashVector } from "@mastra/upstash";
 
-const store = new UpstashStore({
-  url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
-  token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
-});
+// const store = new UpstashStore({
+//   url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
+//   token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
+// });
 
 // Initialize memory with Upstash storage and vector search
-const memory = new Memory({
-  storage: new UpstashStore({
-    url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
-    token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
-  }),
-  vector: new UpstashVector({
-    url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
-    token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
-  }),
-  options: {
-    lastMessages: 10,
-    semanticRecall: {
-      topK: 3,
-      messageRange: 2,
-    },
-  },
-});
+// const memory = new Memory({
+//   storage: new UpstashStore({
+//     url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
+//     token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
+//   }),
+//   vector: new UpstashVector({
+//     url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
+//     token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
+//   }),
+//   options: {
+//     lastMessages: 10,
+//     semanticRecall: {
+//       topK: 3,
+//       messageRange: 2,
+//     },
+//   },
+// });
  
 
 export const memeGeneratorAgent = new Agent({
