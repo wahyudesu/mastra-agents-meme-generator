@@ -1,10 +1,35 @@
 import { Agent } from '@mastra/core';
 // import { openai } from '@ai-sdk/openai';
 import { groq } from '@ai-sdk/groq';
-import { memory } from '../memory';
+// import { memory } from '../memory';
 import { memeGenerationWorkflow } from '../workflows/meme-generation';
+import { Memory } from "@mastra/memory";
+import { UpstashStore, UpstashVector } from "@mastra/upstash";
 
-// const model = groq('gemma2-9b-it');
+const store = new UpstashStore({
+  url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
+  token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
+});
+
+// Initialize memory with Upstash storage and vector search
+const memory = new Memory({
+  storage: new UpstashStore({
+    url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
+    token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
+  }),
+  vector: new UpstashVector({
+    url: process.env.UPSTASH_REDIS_REST_URL ?? (() => { throw new Error('UPSTASH_REDIS_REST_URL is not set'); })(),
+    token: process.env.UPSTASH_REDIS_REST_TOKEN ?? (() => { throw new Error('UPSTASH_REDIS_REST_TOKEN is not set'); })(),
+  }),
+  options: {
+    lastMessages: 10,
+    semanticRecall: {
+      topK: 3,
+      messageRange: 2,
+    },
+  },
+});
+ 
 
 export const memeGeneratorAgent = new Agent({
   name: 'MemeGenerator',
