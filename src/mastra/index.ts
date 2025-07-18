@@ -14,4 +14,10 @@ export const mastra = new Mastra({
   telemetry: {
     enabled: true,
   },
+  server: {
+    build: {
+      openAPIDocs: true,
+      swaggerUI: true
+    },
+  },
 });
