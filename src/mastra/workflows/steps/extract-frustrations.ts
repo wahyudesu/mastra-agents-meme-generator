@@ -1,14 +1,9 @@
 import { createStep } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
 import { groq } from '@ai-sdk/groq';
 import { frustrationsSchema } from '../schemas';
 import { createOpenAI } from "@ai-sdk/openai";
-
-const openai = createOpenAI({
-    baseURL: "https://ai.sumopod.com/v1",
-});
 
 export const extractFrustrationsStep = createStep({
   id: 'extract-frustrations',
